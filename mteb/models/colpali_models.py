@@ -50,6 +50,9 @@ class ColPaliEngineWrapper:
         # Load processor
         self.processor = processor_class.from_pretrained(model_name)
 
+        # Initialize processor kwargs for scoring
+        self.processor_kwargs = {}
+
     def encode(self, sentences, **kwargs):
         return self.get_text_embeddings(texts=sentences, **kwargs)
 
