@@ -2120,6 +2120,25 @@ VISUAL_DOCUMENT_RETRIEVAL = Benchmark(
 """,
 )
 
+NAYANA_EMBED = Benchmark(
+    name="Nayana-Embed",
+    display_name="Nayana Embed",
+    tasks=get_tasks(
+        tasks=[
+            "NayanaEmbedRetrieval",
+        ],
+    ),
+    description="Retrieve associated pages according to questions using Nayana multilingual document retrieval dataset.",
+    reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-v1",
+    citation=r"""
+@article{nayana2025embed,
+  author = {Nayana CognitiveLab},
+  title = {Nayana Embed: Multilingual Document Retrieval Benchmark},
+  year = {2025},
+}
+""",
+)
+
 R2MED = Benchmark(
     name="R2MED",
     display_name="Reasoning-driven medical retrieval",
