@@ -236,5 +236,6 @@ conflicts = [
     [{ extra = "jina-v4" }, { extra = "llm2vec" }],
 ]
 
-[tool.uv.extra-build-dependencies]
-flash-attn = [{ requirement = "torch", match-runtime = true }]
+# [tool.uv.extra-build-dependencies]
+# flash-attn = [{ requirement = "torch", match-runtime = true }]
+# Note: extra-build-dependencies is not supported in this uv version

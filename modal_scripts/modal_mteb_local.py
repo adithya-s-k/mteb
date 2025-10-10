@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any
 
 app = modal.App("mteb-vidore-benchmark-local")
-
+huggingface_secret = modal.Secret.from_name("adithya-hf-wandb")
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install("git", "wget", "curl")
@@ -157,7 +157,7 @@ def list_available_benchmarks() -> dict:
     gpu="L40S",
     timeout=4 * 60 * 60,
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
-    secrets=[modal.Secret.from_name("huggingface-secret")],
+    secrets=[huggingface_secret],
 )
 def run_mteb_evaluation(
     model_name: str,
@@ -190,6 +190,7 @@ def run_mteb_evaluation(
 
     os.environ["HF_HOME"] = cache_folder
     os.environ["TRANSFORMERS_CACHE"] = cache_folder
+    os.environ["HF_TOKEN"] = os.environ["HUGGINGFACE_TOKEN"]
 
     print(f"Running evaluation for model: {model_name}")
     print(f"Using local mteb from: /mteb")
@@ -257,7 +258,7 @@ def run_mteb_evaluation(
     image=image,
     timeout=14400,
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
-    secrets=[modal.Secret.from_name("huggingface-secret")],
+    secrets=[huggingface_secret],
 )
 def batch_evaluate_models(
     model_names: List[str],
@@ -355,7 +356,7 @@ def list_benchmarks():
 
 @app.local_entrypoint()
 def main(
-    model: str = "vidore/colqwen2.5-v0.2",
+    model: str = "bigemma3-4b-embedding",
     benchmarks: str = "",
     output_folder: str = "../../results",
     batch_mode: bool = False,
@@ -366,10 +367,33 @@ def main(
 
     Args:
         model: Model name or comma-separated list of models for batch mode
+               Supported models:
+               - bigemma3-4b-embedding (BiGemma3 4B - custom dense embedding model)
+               - vidore/colqwen2.5-v0.2 (ColQwen2.5 - late interaction)
+               - vidore/colpali-v1.2 (ColPali - late interaction)
+               - google/siglip-so400m-patch14-384 (SigLIP - CLIP-style)
+               - Alibaba-NLP/gme-Qwen2-VL-2B-Instruct (GME-V - similar to BiGemma3)
         benchmarks: Comma-separated list of benchmark names (empty for default ViDoRe v1,v2)
         output_folder: Output folder for results
         batch_mode: Whether to run in batch mode for multiple models
-        batch_size: Batch size for model inference (optional)
+        batch_size: Batch size for model inference (optional, default varies by model)
+                   Recommended: 8-16 for BiGemma3, 32 for CLIP-style models
+
+    Examples:
+        # Evaluate BiGemma3 on Vidore benchmark
+        modal run modal_mteb_local.py --model bigemma3-4b-embedding
+
+        # Evaluate BiGemma3 with custom batch size
+        modal run modal_mteb_local.py --model bigemma3-4b-embedding --batch-size 8
+
+        # Evaluate multiple models in batch mode
+        modal run modal_mteb_local.py --model "bigemma3-4b-embedding,vidore/colqwen2.5-v0.2" --batch-mode True
+
+        # Evaluate on specific Vidore tasks
+        modal run modal_mteb_local.py --model bigemma3-4b-embedding --benchmarks "ViDoRe(v1)"
+
+        # List available benchmarks
+        modal run modal_mteb_local.py::list_benchmarks
     """
     print("Using LOCAL mteb directory for evaluation")
     print("=" * 50)
@@ -420,3 +444,14 @@ def main(
 
 if __name__ == "__main__":
     main()
+
+
+# modal run modal_mteb_local.py::main \
+#     --model "google/gemma-3-4b-it-bigemma3" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 8
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
