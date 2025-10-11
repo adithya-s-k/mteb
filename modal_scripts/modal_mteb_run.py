@@ -1,8 +1,11 @@
-import modal
+from __future__ import annotations
+
 import json
 import os
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import Any, Optional
+
+import modal
 
 app = modal.App("mteb-vidore-benchmark")
 
@@ -33,10 +36,8 @@ image = (
 )
 
 
-def extract_serializable_results(results: Any) -> Dict[str, Any]:
-    """
-    Extract serializable data from MTEB results to avoid Modal deserialization issues.
-    """
+def extract_serializable_results(results: Any) -> dict[str, Any]:
+    """Extract serializable data from MTEB results to avoid Modal deserialization issues."""
     if isinstance(results, list):
         serializable_results = []
         for task_result in results:
@@ -44,14 +45,14 @@ def extract_serializable_results(results: Any) -> Dict[str, Any]:
                 json_str = task_result.model_dump_json()
                 task_dict = json.loads(json_str)
                 serializable_results.append(task_dict)
-            except:
+            except Exception:
                 serializable_results.append(str(task_result))
         return {"task_results": serializable_results}
     else:
         try:
             json_str = results.model_dump_json()
             return json.loads(json_str)
-        except:
+        except Exception:
             return {"raw_results": str(results)}
 
 
@@ -102,13 +103,12 @@ def list_available_benchmarks() -> dict:
 )
 def run_mteb_evaluation(
     model_name: str,
-    benchmarks: Optional[List[str]] = None,
+    benchmarks: Optional[list[str]] = None,
     output_folder: str = "results",
     cache_folder: str = "/cache",
     batch_size: Optional[int] = None,
 ) -> dict:
-    """
-    Run MTEB evaluation for specified model and ViDoRe benchmarks.
+    """Run MTEB evaluation for specified model and ViDoRe benchmarks.
 
     Args:
         model_name: HuggingFace model name or path
@@ -196,13 +196,12 @@ def run_mteb_evaluation(
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
 )
 def batch_evaluate_models(
-    model_names: List[str],
-    benchmarks: Optional[List[str]] = None,
+    model_names: list[str],
+    benchmarks: Optional[list[str]] = None,
     output_folder: str = "results",
     batch_size: Optional[int] = None,
-) -> List[dict]:
-    """
-    Run MTEB evaluation for multiple models.
+) -> list[dict]:
+    """Run MTEB evaluation for multiple models.
 
     Args:
         model_names: List of model names to evaluate
@@ -239,10 +238,9 @@ def batch_evaluate_models(
 
 
 def save_results_locally(
-    results: Dict[str, Any], output_folder: str = "results"
+    results: dict[str, Any], output_folder: str = "results"
 ) -> str:
-    """
-    Save evaluation results to a local JSON file.
+    """Save evaluation results to a local JSON file.
 
     Args:
         results: The results dictionary to save
@@ -295,8 +293,7 @@ def main(
     batch_mode: bool = False,
     batch_size: int = None,
 ):
-    """
-    Main entry point for MTEB ViDoRe evaluation.
+    """Main entry point for MTEB ViDoRe evaluation.
 
     Args:
         model: Model name or comma-separated list of models for batch mode
