@@ -8,7 +8,10 @@ from mteb.abstasks.TaskMetadata import TaskMetadata
 
 _LANGS = {
     "en": ["eng-Latn"],
+    "kn": ["kan-Knda"],
+    "hi": ["hin-Deva"],
 }
+
 
 def _load_data(
     path: str,
@@ -95,13 +98,13 @@ def _load_data(
     return corpus, queries, relevant_docs
 
 
-class NayanaEmbedRetrieval(MultilingualTask, AbsTaskAny2AnyRetrieval):
+class NayanaIR(MultilingualTask, AbsTaskAny2AnyRetrieval):
     metadata = TaskMetadata(
-        name="NayanaEmbedRetrieval",
+        name="NayanaVisionRetrieval",
         description="Retrieve associated pages according to questions using Nayana multilingual document retrieval dataset.",
-        reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-v1",
+        reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-multilang",
         dataset={
-            "path": "Nayana-cognitivelab/nayana-beir-eval-v1",
+            "path": "Nayana-cognitivelab/nayana-beir-eval-multilang",
             "revision": "main",
         },
         type="DocumentUnderstanding",
@@ -119,7 +122,7 @@ class NayanaEmbedRetrieval(MultilingualTask, AbsTaskAny2AnyRetrieval):
         sample_creation="found",
         bibtex_citation=r"""
 @article{nayana2025embed,
-  author = {Nayana CognitiveLab},
+  author = {CognitiveLab},
   title = {Nayana Embed: Multilingual Document Retrieval Benchmark},
   year = {2025},
 }
