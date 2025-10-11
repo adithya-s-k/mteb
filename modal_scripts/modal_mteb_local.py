@@ -6,10 +6,70 @@ from typing import List, Optional, Dict, Any
 
 app = modal.App("mteb-vidore-benchmark-local")
 
+# image = (
+#     modal.Image.debian_slim(python_version="3.11")
+#     .apt_install("git", "wget", "curl")
+#     .uv_pip_install(
+#         "sentence-transformers",
+#         "datasets",
+#         "numpy",
+#         "scikit-learn",
+#         "requests",
+#         "tqdm",
+#         "pillow",
+#         "huggingface_hub",
+#         "accelerate",
+#     )
+#     .run_commands(
+#         "uv pip install --python $(command -v python) git+https://github.com/adithya-s-k/colpali.git@feat/gemma3"
+#     )
+#     .add_local_dir(
+#         local_path="../../mteb",
+#         remote_path="/mteb",
+#         copy=True,
+#         ignore=[
+#             "*.git*",
+#             "__pycache__",
+#             "*.pyc",
+#             "*.pyo",
+#             "*.pyd",
+#             ".Python",
+#             "env",
+#             "venv",
+#             ".env",
+#             ".venv",
+#             "pip-log.txt",
+#             "pip-delete-this-directory.txt",
+#             ".tox",
+#             ".coverage",
+#             ".coverage.*",
+#             ".cache",
+#             "nosetests.xml",
+#             "coverage.xml",
+#             "*.cover",
+#             "*.log",
+#             ".DS_Store",
+#             "*.egg-info",
+#             ".pytest_cache",
+#             "node_modules",
+#             "*.tmp",
+#             "*.temp",
+#         ],
+#     )
+#     .run_commands("cd /mteb && uv pip install --python $(command -v python) -e .")
+# )
+
+cuda_version = "12.8.1"
+flavor = "devel"
+operating_sys = "ubuntu24.04"
+tag = f"{cuda_version}-{flavor}-{operating_sys}"
+
 image = (
-    modal.Image.debian_slim(python_version="3.11")
-    .apt_install("git", "wget", "curl")
+    modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
+    .entrypoint([])
+    .apt_install("git", "wget", "curl", "ffmpeg", "libsm6", "libxext6")
     .uv_pip_install(
+        "uv",
         "sentence-transformers",
         "datasets",
         "numpy",
@@ -19,10 +79,12 @@ image = (
         "pillow",
         "huggingface_hub",
         "accelerate",
+        "wheel",
     )
     .run_commands(
         "uv pip install --python $(command -v python) git+https://github.com/adithya-s-k/colpali.git@feat/gemma3"
     )
+    .uv_pip_install("flash-attn", extra_options="--no-build-isolation")
     .add_local_dir(
         local_path="../../mteb",
         remote_path="/mteb",

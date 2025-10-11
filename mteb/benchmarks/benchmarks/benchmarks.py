@@ -2120,16 +2120,16 @@ VISUAL_DOCUMENT_RETRIEVAL = Benchmark(
 """,
 )
 
-NAYANA_EMBED = Benchmark(
-    name="Nayana-Embed",
-    display_name="Nayana Embed",
+NAYANA_IR_BENCH = Benchmark(
+    name="NayanaIR-Bench",
+    display_name="NayanaIR-Bench",
     tasks=get_tasks(
         tasks=[
-            "NayanaEmbedRetrieval",
+            "NayanaIR",
         ],
     ),
     description="Retrieve associated pages according to questions using Nayana multilingual document retrieval dataset.",
-    reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-v1",
+    reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-multilang",
     citation=r"""
 @article{nayana2025embed,
   author = {Nayana CognitiveLab},

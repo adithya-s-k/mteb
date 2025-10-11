@@ -48,7 +48,7 @@ from .eng.WebQAT2ITRetrieval import *
 from .eng.WebQAT2TRetrieval import *
 from .multilingual.JinaVDRBenchRetrieval import *
 from .multilingual.MIRACLVisionRetrieval import *
-from .multilingual.NayanaEmbedRetrieval import *
+from .multilingual.NayanaIR import *
 from .multilingual.VdrMultilingualRetrieval import *
 from .multilingual.Vidore2BenchRetrieval import *
 from .multilingual.WITT2IRetrieval import *
