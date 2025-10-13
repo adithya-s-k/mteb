@@ -452,3 +452,21 @@ if __name__ == "__main__":
 #     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694" \
 #     --benchmarks "ViDoRe(v2)" \
 #     --batch-size 12
+
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694" \
+#     --benchmarks "NayanaIR-Bench" \
+#     --batch-size 12
+
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694" \
+#     --benchmarks "ViDoRe(v1)" \
+#     --batch-size 12
+
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12

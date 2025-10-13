@@ -281,12 +281,18 @@ class BiGemma3Wrapper:
         # Handle single modality cases
         if texts is None:
             return self.get_image_embeddings(
-                images, task_name=task_name, prompt_type=prompt_type, batch_size=batch_size
+                images,
+                task_name=task_name,
+                prompt_type=prompt_type,
+                batch_size=batch_size,
             )
 
         if images is None:
             return self.get_text_embeddings(
-                texts, task_name=task_name, prompt_type=prompt_type, batch_size=batch_size
+                texts,
+                task_name=task_name,
+                prompt_type=prompt_type,
+                batch_size=batch_size,
             )
 
         # Multimodal fusion
@@ -302,7 +308,10 @@ class BiGemma3Wrapper:
         if fusion_mode in ["sum", "mean"]:
             # Get separate embeddings
             text_embeddings = self.get_text_embeddings(
-                texts, task_name=task_name, prompt_type=prompt_type, batch_size=batch_size
+                texts,
+                task_name=task_name,
+                prompt_type=prompt_type,
+                batch_size=batch_size,
             )
 
             # Handle DataLoader for images
@@ -313,7 +322,10 @@ class BiGemma3Wrapper:
                 images = image_list
 
             image_embeddings = self.get_image_embeddings(
-                images, task_name=task_name, prompt_type=prompt_type, batch_size=batch_size
+                images,
+                task_name=task_name,
+                prompt_type=prompt_type,
+                batch_size=batch_size,
             )
 
             # Check length compatibility
@@ -404,14 +416,113 @@ bigemma3_base = ModelMeta(
     training_datasets=BIGEMMA3_TRAINING_DATA,
 )
 
+
+bigemma3_hardneg_2300 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-2300",
+        embedding_dim=2560,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-2300",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-2300",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+        # Add other datasets used in fine-tuning
+    },
+)
+
+bigemma3_hardneg_1950 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1950",
+        embedding_dim=2560,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1950",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1950",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+        # Add other datasets used in fine-tuning
+    },
+)
+
 # Fine-tuned BiGemma3 with Hard Negatives - Nayana IR (Document Retrieval Optimized)
-bigemma3_hardneg = ModelMeta(
+bigemma3_hardneg_1694 = ModelMeta(
     loader=partial(
         BiGemma3Wrapper,
         model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694",
         embedding_dim=2560,
     ),
     name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+        # Add other datasets used in fine-tuning
+    },
+)
+
+
+# Fine-tuned BiGemma3 with Hard Negatives - Nayana IR (Document Retrieval Optimized)
+bigemma3_hardneg_750 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-750",
+        embedding_dim=2560,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-750",
     languages=["eng-Latn"],
     revision="main",
     release_date="2025-01-01",

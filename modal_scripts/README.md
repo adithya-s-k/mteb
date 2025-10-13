@@ -68,6 +68,8 @@ Specify specific benchmarks instead of default ViDoRe v1 and v2:
 
 ```bash
 modal run modal_mteb_local.py --model "vidore/colpali-v1.3" --benchmarks "NayanaIR-Bench"
+
+modal run modal_mteb_local.py --model "vidore/colpali-v1.3" --benchmarks "NayanaIR-Bench"
 ```
 
 ### Batch Evaluation (Multiple Models)
