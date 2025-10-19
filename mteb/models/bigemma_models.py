@@ -33,6 +33,7 @@ class BiGemma3Wrapper:
         model_name: str = "google/gemma-3-4b-it",
         device: str | None = None,
         embedding_dim: int = 2560,
+        pooling_strategy: str = "last",
         **kwargs,
     ):
         """Initialize BiGemma3 wrapper.
@@ -41,6 +42,7 @@ class BiGemma3Wrapper:
             model_name: HuggingFace model name or path
             device: Device to load model on (default: cuda if available)
             embedding_dim: Dimension of output embeddings (default: 2560)
+            pooling_strategy: Pooling strategy to use ("cls", "last", "mean"). Default: "last"
             **kwargs: Additional arguments passed to model loading
         """
         requires_image_dependencies()
@@ -55,16 +57,19 @@ class BiGemma3Wrapper:
 
         self.model_name = model_name
         self.embedding_dim = embedding_dim
+        self.pooling_strategy = pooling_strategy
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
 
         logger.info(f"Loading BiGemma3 model: {model_name}")
+        logger.info(f"Pooling strategy: {pooling_strategy}")
 
-        # Load model
+        # Load model with pooling strategy
         self.model = BiGemma3.from_pretrained(
             model_name,
             torch_dtype=torch.bfloat16,
             device_map="auto",
             trust_remote_code=True,
+            pooling_strategy=pooling_strategy,
             **kwargs,
         ).eval()
 
@@ -395,6 +400,7 @@ bigemma3_base = ModelMeta(
         BiGemma3Wrapper,
         model_name="google/gemma-3-4b-it",
         embedding_dim=2560,
+        pooling_strategy="last",
     ),
     name="google/gemma-3-4b-it-bigemma3",
     languages=["eng-Latn"],
@@ -416,12 +422,82 @@ bigemma3_base = ModelMeta(
     training_datasets=BIGEMMA3_TRAINING_DATA,
 )
 
+# Nayana-cognitivelab/Full_SFT_v2_base_gemma_merged_1400
+# Nayana-cognitivelab/Full-SFT-v1-23000
+
+bigemma3_ocr_sft_23000 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/Full-SFT-v1-23000",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/Full-SFT-v1-23000",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-2300",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+        # Add other datasets used in fine-tuning
+    },
+)
+
+bigemma3_ocr_sft_1400 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/Full_SFT_v2_base_gemma_merged_1400",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/Full_SFT_v2_base_gemma_merged_1400",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-2300",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+        # Add other datasets used in fine-tuning
+    },
+)
+
 
 bigemma3_hardneg_2300 = ModelMeta(
     loader=partial(
         BiGemma3Wrapper,
         model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-2300",
         embedding_dim=2560,
+        pooling_strategy="last",
     ),
     name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-2300",
     languages=["eng-Latn"],
@@ -454,6 +530,7 @@ bigemma3_hardneg_1950 = ModelMeta(
         BiGemma3Wrapper,
         model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1950",
         embedding_dim=2560,
+        pooling_strategy="last",
     ),
     name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1950",
     languages=["eng-Latn"],
@@ -487,6 +564,7 @@ bigemma3_hardneg_1694 = ModelMeta(
         BiGemma3Wrapper,
         model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694",
         embedding_dim=2560,
+        pooling_strategy="last",
     ),
     name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694",
     languages=["eng-Latn"],
@@ -521,6 +599,7 @@ bigemma3_hardneg_750 = ModelMeta(
         BiGemma3Wrapper,
         model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-750",
         embedding_dim=2560,
+        pooling_strategy="last",
     ),
     name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-750",
     languages=["eng-Latn"],
@@ -536,7 +615,7 @@ bigemma3_hardneg_750 = ModelMeta(
     public_training_code="https://github.com/adithya-s-k/colpali",
     public_training_data=None,
     framework=["PyTorch", "ColPali"],
-    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694",
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-750",
     similarity_fn_name="cosine",
     use_instructions=True,
     training_datasets={
@@ -545,5 +624,423 @@ bigemma3_hardneg_750 = ModelMeta(
         "InfoVQA": ["train"],
         "ArxivQA": ["train"],
         # Add other datasets used in fine-tuning
+    },
+)
+
+bigemma3_hardneg_500 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-500",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-500",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-500",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_hardneg_252 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-252",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-252",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-252",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+# InBatch models - use last token pooling
+bigemma3_inbatch_1000 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1000",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1000",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1000",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_inbatch_1500 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1500",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1500",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1500",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_inbatch_1750 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1750",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1750",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1750",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_inbatch_2000 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-2000",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-2000",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-2000",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_inbatch_2500 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-2500",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-2500",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-2500",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_inbatch_3000 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-3000",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-3000",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-3000",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_inbatch_3694 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-3694",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-3694",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-3694",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+# MeanPooling-HardNeg models - use mean pooling strategy
+bigemma3_meanpool_hardneg_1000 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1000",
+        embedding_dim=2560,
+        pooling_strategy="mean",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1000",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1000",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_meanpool_hardneg_1500 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1500",
+        embedding_dim=2560,
+        pooling_strategy="mean",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1500",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1500",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_meanpool_hardneg_1750 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1750",
+        embedding_dim=2560,
+        pooling_strategy="mean",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1750",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1750",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+bigemma3_meanpool_hardneg_2000 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-2000",
+        embedding_dim=2560,
+        pooling_strategy="mean",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-2000",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-2000",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
     },
 )

@@ -23,9 +23,6 @@ image = (
         "huggingface_hub",
         "accelerate",
     )
-    .run_commands(
-        "uv pip install --python $(command -v python) git+https://github.com/adithya-s-k/colpali.git@feat/gemma3"
-    )
     .add_local_dir(
         local_path="../../mteb",
         remote_path="/mteb",
@@ -58,6 +55,9 @@ image = (
             "*.tmp",
             "*.temp",
         ],
+    )
+    .run_commands(
+        "uv pip install --python $(command -v python) git+https://github.com/adithya-s-k/colpali.git@feat/gemma3"
     )
     .run_commands("cd /mteb && uv pip install --python $(command -v python) -e .")
 )
@@ -166,6 +166,7 @@ def run_mteb_evaluation(
     output_folder: str = "results",
     cache_folder: str = "/cache",
     batch_size: Optional[int] = None,
+    pooling_strategy: Optional[str] = None,
 ) -> dict:
     """Run MTEB evaluation for specified model and benchmarks using local mteb directory.
 
@@ -175,6 +176,7 @@ def run_mteb_evaluation(
         output_folder: Folder to save results
         cache_folder: Cache folder for datasets and models
         batch_size: Batch size for model inference (optional)
+        pooling_strategy: Pooling strategy for BiGemma3 models ("cls", "last", "mean"). Default: None (uses model default)
 
     Returns:
         Dictionary containing evaluation results
@@ -201,8 +203,13 @@ def run_mteb_evaluation(
     print(f"Benchmarks to evaluate: {benchmarks}")
 
     try:
-        # Load model
-        model = mteb.get_model(model_name)
+        # Load model with optional pooling_strategy
+        model_kwargs = {}
+        if pooling_strategy is not None:
+            model_kwargs["pooling_strategy"] = pooling_strategy
+            print(f"Using pooling strategy: {pooling_strategy}")
+
+        model = mteb.get_model(model_name, **model_kwargs)
         print(f"Successfully loaded model: {model_name}")
 
         # Get benchmarks
@@ -265,6 +272,7 @@ def batch_evaluate_models(
     benchmarks: Optional[list[str]] = None,
     output_folder: str = "results",
     batch_size: Optional[int] = None,
+    pooling_strategy: Optional[str] = None,
 ) -> list[dict]:
     """Run MTEB evaluation for multiple models using local mteb directory.
 
@@ -273,6 +281,7 @@ def batch_evaluate_models(
         benchmarks: List of benchmark names (default: ViDoRe v1 and v2)
         output_folder: Output folder for results
         batch_size: Batch size for model inference (optional)
+        pooling_strategy: Pooling strategy for BiGemma3 models ("cls", "last", "mean"). Default: None
 
     Returns:
         List of evaluation results
@@ -287,6 +296,7 @@ def batch_evaluate_models(
                 benchmarks=benchmarks,
                 output_folder=f"{output_folder}/{model_name.replace('/', '_')}",
                 batch_size=batch_size,
+                pooling_strategy=pooling_strategy,
             )
             results.append(result)
         except Exception as e:
@@ -359,6 +369,7 @@ def main(
     output_folder: str = "../../results",
     batch_mode: bool = False,
     batch_size: int = None,
+    pooling_strategy: str = None,
 ):
     """Main entry point for MTEB evaluation using local mteb directory.
 
@@ -375,6 +386,9 @@ def main(
         batch_mode: Whether to run in batch mode for multiple models
         batch_size: Batch size for model inference (optional, default varies by model)
                    Recommended: 8-16 for BiGemma3, 32 for CLIP-style models
+        pooling_strategy: Pooling strategy for BiGemma3 models ("cls", "last", "mean")
+                         Default: None (uses model default of "last")
+                         Only applicable to BiGemma3 models
 
     Examples:
         # Evaluate BiGemma3 on Vidore benchmark
@@ -382,6 +396,12 @@ def main(
 
         # Evaluate BiGemma3 with custom batch size
         modal run modal_mteb_local.py --model bigemma3-4b-embedding --batch-size 8
+
+        # Evaluate BiGemma3 with mean pooling strategy
+        modal run modal_mteb_local.py --model bigemma3-4b-embedding --pooling-strategy mean
+
+        # Evaluate BiGemma3 with cls pooling
+        modal run modal_mteb_local.py --model bigemma3-4b-embedding --pooling-strategy cls --batch-size 8
 
         # Evaluate multiple models in batch mode
         modal run modal_mteb_local.py --model "bigemma3-4b-embedding,vidore/colqwen2.5-v0.2" --batch-mode True
@@ -408,6 +428,7 @@ def main(
             benchmarks=benchmark_list,
             output_folder=output_folder,
             batch_size=batch_size,
+            pooling_strategy=pooling_strategy,
         )
 
         print("Batch evaluation completed")
@@ -428,6 +449,7 @@ def main(
             benchmarks=benchmark_list,
             output_folder=output_folder,
             batch_size=batch_size,
+            pooling_strategy=pooling_strategy,
         )
 
         print(f"Evaluation completed: {result.get('status', 'unknown')}")
@@ -468,5 +490,117 @@ if __name__ == "__main__":
 
 # modal run modal_mteb_local.py::main \
 #     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/Full-SFT-v1-23000" \
+#     --benchmarks "NayanaIR-Bench" \
+#     --batch-size 12
+
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/Full_SFT_v2_base_gemma_merged_1400" \
+#     --benchmarks "NayanaIR-Bench" \
+#     --batch-size 12
+
+
+# ============================================================================
+# HardNeg Models - ViDoRe v2 Evaluation (Last Token Pooling)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-252" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-750" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1694" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-1950" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNeg-merged-2300" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+
+# ============================================================================
+# InBatch Models - ViDoRe v2 Evaluation (Last Token Pooling)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1000" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-1750" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-2000" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-2500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-3000" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-InBatch-merged-3694" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+
+# ============================================================================
+# MeanPooling-HardNeg Models - ViDoRe v2 Evaluation (Mean Pooling)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1000" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-1750" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-2000" \
 #     --benchmarks "ViDoRe(v2)" \
 #     --batch-size 12
