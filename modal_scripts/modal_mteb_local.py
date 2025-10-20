@@ -604,3 +604,13 @@ if __name__ == "__main__":
 #     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-MeanPooling-HardNeg-merged-2000" \
 #     --benchmarks "ViDoRe(v2)" \
 #     --batch-size 12
+
+# ============================================================================
+# Matryoshka Models - ViDoRe v2 Evaluation (Last Token Pooling)
+# ============================================================================
+
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-merged-2000" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
