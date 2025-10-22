@@ -2135,7 +2135,7 @@ NAYANA_IR_BENCH = Benchmark(
         ],
     ),
     description="Retrieve associated pages according to questions using Nayana multilingual document retrieval dataset.",
-    reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-multilang",
+    reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-multilang_v12",
     citation=r"""
 @article{nayana2025embed,
   author = {CognitiveLab},

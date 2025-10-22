@@ -102,9 +102,9 @@ class NayanaIR(MultilingualTask, AbsTaskAny2AnyRetrieval):
     metadata = TaskMetadata(
         name="NayanaVisionRetrieval",
         description="Retrieve associated pages according to questions using Nayana multilingual document retrieval dataset.",
-        reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-multilang",
+        reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-multilang_v12",
         dataset={
-            "path": "Nayana-cognitivelab/nayana-beir-eval-multilang",
+            "path": "Nayana-cognitivelab/nayana-beir-eval-multilang_v12",
             "revision": "main",
         },
         type="DocumentUnderstanding",

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import modal
 
@@ -159,14 +159,15 @@ def list_available_benchmarks() -> dict:
     timeout=4 * 60 * 60,
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
     secrets=[huggingface_secret],
+    memory=76800,
 )
 def run_mteb_evaluation(
     model_name: str,
-    benchmarks: Optional[list[str]] = None,
+    benchmarks: list[str] | None = None,
     output_folder: str = "results",
     cache_folder: str = "/cache",
-    batch_size: Optional[int] = None,
-    pooling_strategy: Optional[str] = None,
+    batch_size: int | None = None,
+    pooling_strategy: str | None = None,
 ) -> dict:
     """Run MTEB evaluation for specified model and benchmarks using local mteb directory.
 
@@ -259,58 +260,6 @@ def run_mteb_evaluation(
             "timestamp": datetime.now().isoformat(),
             "mteb_source": "local",
         }
-
-
-@app.function(
-    image=image,
-    timeout=14400,
-    volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
-    secrets=[huggingface_secret],
-)
-def batch_evaluate_models(
-    model_names: list[str],
-    benchmarks: Optional[list[str]] = None,
-    output_folder: str = "results",
-    batch_size: Optional[int] = None,
-    pooling_strategy: Optional[str] = None,
-) -> list[dict]:
-    """Run MTEB evaluation for multiple models using local mteb directory.
-
-    Args:
-        model_names: List of model names to evaluate
-        benchmarks: List of benchmark names (default: ViDoRe v1 and v2)
-        output_folder: Output folder for results
-        batch_size: Batch size for model inference (optional)
-        pooling_strategy: Pooling strategy for BiGemma3 models ("cls", "last", "mean"). Default: None
-
-    Returns:
-        List of evaluation results
-    """
-    results = []
-
-    for model_name in model_names:
-        print(f"Starting evaluation for {model_name}")
-        try:
-            result = run_mteb_evaluation.remote(
-                model_name=model_name,
-                benchmarks=benchmarks,
-                output_folder=f"{output_folder}/{model_name.replace('/', '_')}",
-                batch_size=batch_size,
-                pooling_strategy=pooling_strategy,
-            )
-            results.append(result)
-        except Exception as e:
-            print(f"Failed to start evaluation for {model_name}: {e}")
-            error_result = {
-                "model": model_name,
-                "status": "failed",
-                "error": str(e),
-                "timestamp": datetime.now().isoformat(),
-                "mteb_source": "local",
-            }
-            results.append(error_result)
-
-    return results
 
 
 def save_results_locally(
@@ -421,24 +370,48 @@ def main(
 
     if batch_mode:
         model_names = [m.strip() for m in model.split(",")]
-        print(f"Running batch evaluation for {len(model_names)} models")
+        print(f"Running batch evaluation for {len(model_names)} models in parallel")
+        print(f"Models: {', '.join(model_names)}")
 
-        results = batch_evaluate_models.remote(
-            model_names=model_names,
-            benchmarks=benchmark_list,
-            output_folder=output_folder,
-            batch_size=batch_size,
-            pooling_strategy=pooling_strategy,
+        # Spawn parallel evaluation jobs for each model
+        evaluation_calls = []
+        for model_name in model_names:
+            print(f"Starting evaluation job for: {model_name}")
+            call = run_mteb_evaluation.spawn(
+                model_name=model_name,
+                benchmarks=benchmark_list,
+                output_folder=output_folder,
+                batch_size=batch_size,
+                pooling_strategy=pooling_strategy,
+            )
+            evaluation_calls.append((model_name, call))
+
+        # Collect results as they complete
+        results = []
+        for model_name, call in evaluation_calls:
+            try:
+                print(f"Waiting for results from: {model_name}")
+                result = call.get()
+                results.append(result)
+                print(f"✓ {model_name}: {result.get('status', 'unknown')}")
+
+                if result.get("status") == "completed":
+                    local_filepath = save_results_locally(result, output_folder)
+                    print(f"  Results saved to: {local_filepath}")
+            except Exception as e:
+                print(f"✗ {model_name}: Failed - {str(e)}")
+                error_result = {
+                    "model": model_name,
+                    "status": "failed",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                    "mteb_source": "local",
+                }
+                results.append(error_result)
+
+        print(
+            f"\nBatch evaluation completed: {len(results)}/{len(model_names)} models processed"
         )
-
-        print("Batch evaluation completed")
-
-        for result in results:
-            print(f"Model: {result['model']} - Status: {result['status']}")
-            if result.get("status") == "completed":
-                local_filepath = save_results_locally(result, output_folder)
-                print(f"Results for {result['model']} saved to: {local_filepath}")
-
         return results
 
     else:
