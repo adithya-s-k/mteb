@@ -587,3 +587,12 @@ if __name__ == "__main__":
 #     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-merged-2000" \
 #     --benchmarks "ViDoRe(v2)" \
 #     --batch-size 12
+
+# ============================================================================
+# Multiple models evaluation - Batch Mode
+# ============================================================================
+
+# modal run -d modal_mteb_local.py::main \ 
+#     --model "vidore/colpali-v1.2,vidore/colpali-v1.3" 
+#     --batch-mode 
+#     --benchmarks "NayanaIR-Bench"
