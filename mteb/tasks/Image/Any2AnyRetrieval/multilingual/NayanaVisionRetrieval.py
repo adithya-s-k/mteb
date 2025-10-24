@@ -98,13 +98,71 @@ def _load_data(
     return corpus, queries, relevant_docs
 
 
-class NayanaIR(MultilingualTask, AbsTaskAny2AnyRetrieval):
+class NayanaIR_v12(MultilingualTask, AbsTaskAny2AnyRetrieval):
     metadata = TaskMetadata(
-        name="NayanaVisionRetrieval",
+        name="NayanaVisionRetrievalV12",
         description="Retrieve associated pages according to questions using Nayana multilingual document retrieval dataset.",
         reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-multilang_v12",
         dataset={
             "path": "Nayana-cognitivelab/nayana-beir-eval-multilang_v12",
+            "revision": "main",
+        },
+        type="DocumentUnderstanding",
+        category="t2i",
+        eval_splits=["test"],
+        eval_langs=_LANGS,
+        main_score="ndcg_at_5",
+        date=("2025-01-01", "2025-03-01"),
+        domains=["Academic"],
+        task_subtypes=["Image Text Retrieval"],
+        license="mit",
+        annotations_creators="derived",
+        dialect=[],
+        modalities=["text", "image"],
+        sample_creation="found",
+        bibtex_citation=r"""
+@article{nayana2025embed,
+  author = {CognitiveLab},
+  title = {Nayana Embed: Multilingual Document Retrieval Benchmark},
+  year = {2025},
+}
+""",
+        prompt={"query": "Find a screenshot that relevant to the user's question."},
+        descriptive_stats={
+            "n_samples": None,
+            "avg_character_length": {
+                "test": {
+                    "average_document_length": 1.0,
+                    "num_documents": 300,
+                    "num_queries": 350,
+                    "average_relevant_docs_per_query": 1.0,
+                }
+            },
+        },
+    )
+
+    def load_data(self, **kwargs):
+        if self.data_loaded:
+            return
+
+        self.corpus, self.queries, self.relevant_docs = _load_data(
+            path=self.metadata_dict["dataset"]["path"],
+            splits=self.metadata_dict["eval_splits"],
+            langs=_LANGS.keys(),
+            cache_dir=kwargs.get("cache_dir", None),
+            revision=self.metadata_dict["dataset"]["revision"],
+        )
+
+        self.data_loaded = True
+
+
+class NayanaIR_v1(MultilingualTask, AbsTaskAny2AnyRetrieval):
+    metadata = TaskMetadata(
+        name="NayanaVisionRetrievalV1",
+        description="Retrieve associated pages according to questions using Nayana multilingual document retrieval dataset.",
+        reference="https://huggingface.co/datasets/Nayana-cognitivelab/nayana-beir-eval-multilang",
+        dataset={
+            "path": "Nayana-cognitivelab/nayana-beir-eval-multilang",
             "revision": "main",
         },
         type="DocumentUnderstanding",

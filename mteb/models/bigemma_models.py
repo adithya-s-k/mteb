@@ -1051,7 +1051,7 @@ bigemma3_matryoshka_merged_2000 = ModelMeta(
         BiGemma3Wrapper,
         model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-merged-2000",
         embedding_dim=2560,
-        pooling_strategy="mean",
+        pooling_strategy="last",
     ),
     name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-merged-2000",
     languages=["eng-Latn"],
@@ -1068,6 +1068,40 @@ bigemma3_matryoshka_merged_2000 = ModelMeta(
     public_training_data=None,
     framework=["PyTorch", "ColPali"],
     reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-merged-2000",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-Multilingual-Hi-En-Kn-merged-1386
+bigemma_multilingual_hi_en_kn_1386 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-Multilingual-Hi-En-Kn-merged-1386",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-Multilingual-Hi-En-Kn-merged-1386",
+    languages=["eng-Latn", "hin-Deva", "kan-Knda"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-Multilingual-Hi-En-Kn-merged-1386",
     similarity_fn_name="cosine",
     use_instructions=True,
     training_datasets={
