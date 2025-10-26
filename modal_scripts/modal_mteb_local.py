@@ -9,9 +9,15 @@ import modal
 
 app = modal.App("mteb-vidore-benchmark-local")
 huggingface_secret = modal.Secret.from_name("adithya-hf-wandb")
+
+# CUDA configuration similar to vLLM Llama 11B
+cuda_version = "12.8.1"  # should be no greater than host CUDA version
+flavor = "devel"  # includes full CUDA toolkit
+operating_sys = "ubuntu24.04"
+tag = f"{cuda_version}-{flavor}-{operating_sys}"
 image = (
-    modal.Image.debian_slim(python_version="3.11")
-    .apt_install("git", "wget", "curl")
+    modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.12")
+    .apt_install("libopenmpi-dev", "libnuma-dev", "git", "wget", "curl")
     .uv_pip_install(
         "sentence-transformers",
         "datasets",
@@ -60,6 +66,7 @@ image = (
         "uv pip install --python $(command -v python) git+https://github.com/adithya-s-k/colpali.git@feat/gemma3"
     )
     .run_commands("cd /mteb && uv pip install --python $(command -v python) -e .")
+    .run_commands("uv pip install flash-attn --no-build-isolation --system")
 )
 
 
@@ -155,7 +162,7 @@ def list_available_benchmarks() -> dict:
 
 @app.function(
     image=image,
-    gpu="L40S",
+    gpu="A100-40GB",
     timeout=4 * 60 * 60,
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
     secrets=[huggingface_secret],
@@ -592,7 +599,7 @@ if __name__ == "__main__":
 # Multiple models evaluation - Batch Mode
 # ============================================================================
 
-# modal run -d modal_mteb_local.py::main \ 
-#     --model "vidore/colpali-v1.2,vidore/colpali-v1.3" 
-#     --batch-mode 
-#     --benchmarks "NayanaIR-Bench"
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Multilingual-Hi-En-Kn-merged-1386" \
+#     --benchmarks "NayanaIR-Bench-v1" \
+#     --batch-size 12
