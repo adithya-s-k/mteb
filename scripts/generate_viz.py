@@ -156,6 +156,103 @@ def discover_available_metrics(results: List[Dict[str, Any]]) -> List[Tuple[str,
     return available
 
 
+def extract_languages_from_result(result: Dict[str, Any]) -> List[str]:
+    """
+    Extract all unique languages from a result.
+    Returns list of language codes (e.g., ['en', 'hi', 'kn']).
+    """
+    languages = set()
+
+    tasks = result.get("results", {}).get("task_results", [])
+    for task in tasks:
+        scores_list = task.get("scores", {}).get("test", [])
+        for scores in scores_list:
+            # Get language from hf_subset field
+            lang = scores.get("hf_subset", "")
+            if lang:
+                languages.add(lang)
+
+    return sorted(list(languages))
+
+
+def format_language_name(lang_code: str) -> str:
+    """
+    Format language code to display name.
+
+    Examples:
+        "en" → "English"
+        "hi" → "Hindi"
+        "kn" → "Kannada"
+        "english" → "English"
+    """
+    # Map common language codes
+    lang_map = {
+        "en": "English",
+        "english": "English",
+        "hi": "Hindi",
+        "hindi": "Hindi",
+        "kn": "Kannada",
+        "kannada": "Kannada",
+        "fr": "French",
+        "french": "French",
+        "es": "Spanish",
+        "spanish": "Spanish",
+        "de": "German",
+        "german": "German",
+        "zh": "Chinese",
+        "chinese": "Chinese",
+        "ja": "Japanese",
+        "japanese": "Japanese",
+        "ko": "Korean",
+        "korean": "Korean",
+    }
+
+    return lang_map.get(lang_code.lower(), lang_code.capitalize())
+
+
+def calculate_avg_by_language(result: Dict[str, Any], metric: str, language: str) -> float:
+    """
+    Calculate average of a metric across all tasks for a specific language.
+    """
+    tasks = result.get("results", {}).get("task_results", [])
+    values = []
+
+    for task in tasks:
+        scores_list = task.get("scores", {}).get("test", [])
+        for scores in scores_list:
+            if scores.get("hf_subset", "") == language:
+                value = scores.get(metric, 0)
+                if value is not None:
+                    values.append(value)
+
+    return sum(values) / len(values) if values else 0
+
+
+def organize_by_benchmark_and_language(
+    results: List[Dict[str, Any]],
+) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+    """
+    Group results by benchmark and then by language.
+    Returns: {benchmark: {language: [results]}}
+    """
+    by_benchmark_lang = {}
+
+    for result in results:
+        benchmark = result["_benchmark"]
+        languages = extract_languages_from_result(result)
+
+        if benchmark not in by_benchmark_lang:
+            by_benchmark_lang[benchmark] = {}
+
+        # Add this result to each language it contains
+        for lang in languages:
+            if lang not in by_benchmark_lang[benchmark]:
+                by_benchmark_lang[benchmark][lang] = []
+            by_benchmark_lang[benchmark][lang].append(result)
+
+    return by_benchmark_lang
+
+
 def scan_directory_recursive(path: Path) -> List[Path]:
     """Recursively scan directory for JSON files."""
     json_files = []
@@ -245,6 +342,12 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
 
     # Discover available metrics
     available_metrics = discover_available_metrics(results)
+
+    # Extract all unique languages
+    all_languages = set()
+    for result in results:
+        all_languages.update(extract_languages_from_result(result))
+    all_languages = sorted(list(all_languages))
 
     html = """<!DOCTYPE html>
 <html>
@@ -427,6 +530,70 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
             font-weight: 600;
             color: #000;
         }
+
+        .language-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 6px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .language-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2E7D32;
+        }
+
+        .lang-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            margin: 4px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            color: #000;
+            background: #f5f5f5;
+        }
+
+        .nav-tab.active {
+            color: #2196f3;
+            border-bottom-color: #2196f3;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -458,9 +625,18 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
             <div class="stat-value">{len(by_benchmark)}</div>
         </div>
         <div class="stat-card">
+            <div class="stat-label">Languages</div>
+            <div class="stat-value">{len(all_languages)}</div>
+        </div>
+        <div class="stat-card">
             <div class="stat-label">Total Results</div>
             <div class="stat-value">{len(results)}</div>
         </div>
+    </div>
+
+    <div style="margin: 20px 0;">
+        <strong>Languages covered:</strong>
+        {' '.join([f'<span class="lang-badge">{format_language_name(lang)}</span>' for lang in all_languages])}
     </div>
 """
 
@@ -544,6 +720,96 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
             benchmark_name.replace(" ", "_").replace("(", "").replace(")", ""),
         )
 
+        # Language-specific breakdown
+        benchmark_languages = set()
+        for result in benchmark_results:
+            benchmark_languages.update(extract_languages_from_result(result))
+        benchmark_languages = sorted(list(benchmark_languages))
+
+        if len(benchmark_languages) > 1:
+            html += """
+        <h3>📊 Language-Specific Performance</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+            This benchmark includes multiple languages. View performance metrics broken down by language below.
+        </p>
+"""
+
+            # Create tabs for each language
+            bench_id = benchmark_name.replace(" ", "_").replace("(", "").replace(")", "")
+
+            # Tab navigation
+            html += f'        <div class="nav-tabs" id="langTabs_{bench_id}">\n'
+            for idx, lang in enumerate(benchmark_languages):
+                active_class = " active" if idx == 0 else ""
+                html += f'            <button class="nav-tab{active_class}" onclick="showLangTab(\'{bench_id}\', \'{lang}\')">{format_language_name(lang)}</button>\n'
+            html += '        </div>\n'
+
+            # Tab content for each language
+            for idx, lang in enumerate(benchmark_languages):
+                active_class = " active" if idx == 0 else ""
+                html += f"""
+        <div class="tab-content language-section{active_class}" id="langContent_{bench_id}_{lang}">
+            <div class="language-header">🌐 {format_language_name(lang)} Results</div>
+
+            <table class="sortable">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+"""
+                for _, display_name in available_metrics:
+                    html += f"                        <th>{display_name}</th>\n"
+
+                html += """
+                    </tr>
+                </thead>
+                <tbody>
+"""
+
+                # Sort by primary metric for this language
+                lang_sorted_results = sorted(
+                    benchmark_results,
+                    key=lambda r: calculate_avg_by_language(r, primary_metric, lang),
+                    reverse=True,
+                )
+
+                for result in lang_sorted_results:
+                    model_name = result["_display_name"]
+                    color = model_colors[model_name]
+
+                    # Check if this model has data for this language
+                    if lang in extract_languages_from_result(result):
+                        html += f"""
+                <tr>
+                    <td class="model-name">
+                        <span class="model-indicator" style="background-color: {color};"></span>
+                        {model_name}
+                    </td>
+"""
+                        for metric_key, _ in available_metrics:
+                            value = calculate_avg_by_language(result, metric_key, lang)
+                            html += f'                    <td class="metric">{value * 100:.2f}%</td>\n'
+
+                        html += "                </tr>\n"
+
+                html += """
+                </tbody>
+            </table>
+
+            <div class="chart-container">
+                <strong>NDCG@k Metrics - {lang_name}</strong>
+                <div class="chart-wrapper">
+                    <canvas id="ndcgLangChart_{bench_id}_{lang}"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <strong>Recall@k Metrics - {lang_name}</strong>
+                <div class="chart-wrapper">
+                    <canvas id="recallLangChart_{bench_id}_{lang}"></canvas>
+                </div>
+            </div>
+        </div>
+""".replace("{lang}", lang).replace("{bench_id}", bench_id).replace("{lang_name}", format_language_name(lang))
+
         # Per-task breakdown
         html += """
         <h3>Results by Task</h3>
@@ -609,7 +875,7 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
     html += (
         """
     <script>
-        // Prepare data for Chart.js
+        // Prepare data for Chart.js (including language-specific data)
         const benchmarkData = """
         + json.dumps(
             [
@@ -617,11 +883,15 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
                     "benchmark": result["_benchmark"],
                     "model": result["_display_name"],
                     "color": model_colors[result["_display_name"]],
+                    "languages": extract_languages_from_result(result),
                     "tasks": [
                         {
                             "name": format_task_name(t["task_name"]),
                             "raw_name": t["task_name"],
-                            "scores": t.get("scores", {}).get("test", [{}])[0],
+                            "scores_by_lang": {
+                                scores.get("hf_subset", "unknown"): scores
+                                for scores in t.get("scores", {}).get("test", [])
+                            },
                         }
                         for t in result.get("results", {}).get("task_results", [])
                     ],
@@ -712,8 +982,8 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
             }
         };
 
-        // Function to create chart for specific metric
-        function createChart(canvasId, metric, benchmarkFilter) {
+        // Function to create chart for specific metric (overall or language-specific)
+        function createChart(canvasId, metric, benchmarkFilter, language = null) {
             const ctx = document.getElementById(canvasId);
             if (!ctx) return;
 
@@ -727,8 +997,21 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
                 const data = kValues.map(k => {
                     const metricKey = metric + '_at_' + k;
                     const tasks = result.tasks;
-                    const values = tasks.map(t => t.scores[metricKey] || 0);
-                    return values.reduce((a, b) => a + b, 0) / values.length;
+
+                    let values;
+                    if (language) {
+                        // Language-specific: filter by language
+                        values = tasks
+                            .filter(t => t.scores_by_lang[language])
+                            .map(t => t.scores_by_lang[language][metricKey] || 0);
+                    } else {
+                        // Overall: average across all languages
+                        values = tasks.flatMap(t =>
+                            Object.values(t.scores_by_lang).map(scores => scores[metricKey] || 0)
+                        );
+                    }
+
+                    return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0;
                 });
 
                 return {
@@ -752,6 +1035,30 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
             });
         }
 
+        // Function to show language tab
+        function showLangTab(benchId, language) {
+            // Hide all tab contents for this benchmark
+            const allContents = document.querySelectorAll(`[id^="langContent_${benchId}_"]`);
+            allContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            const allTabs = document.querySelectorAll(`#langTabs_${benchId} .nav-tab`);
+            allTabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected content
+            const selectedContent = document.getElementById(`langContent_${benchId}_${language}`);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
+
+            // Highlight selected tab
+            event.target.classList.add('active');
+        }
+
         // Create charts for each benchmark
 """
         + "\n".join(
@@ -763,7 +1070,20 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
                 for benchmark in by_benchmark.keys()
             ]
         )
-        + """
+    )
+
+    # Add language-specific chart creation
+    by_benchmark_lang = organize_by_benchmark_and_language(results)
+    for benchmark, languages_dict in by_benchmark_lang.items():
+        bench_id = benchmark.replace(" ", "_").replace("(", "").replace(")", "")
+        if len(languages_dict) > 1:
+            for lang in languages_dict.keys():
+                html += f"""
+        createChart('ndcgLangChart_{bench_id}_{lang}', 'ndcg', '{benchmark}', '{lang}');
+        createChart('recallLangChart_{bench_id}_{lang}', 'recall', '{benchmark}', '{lang}');
+"""
+
+    html += """
 
         // Table sorting functionality
         document.querySelectorAll('table.sortable th').forEach((th, index) => {
@@ -794,7 +1114,6 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
 </body>
 </html>
 """
-    )
 
     return html
 
