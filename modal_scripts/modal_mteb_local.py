@@ -163,11 +163,11 @@ def list_available_benchmarks() -> dict:
 
 @app.function(
     image=image,
-    gpu="A100-40GB",
-    timeout=4 * 60 * 60,
+    # gpu="A100-40GB",
+    gpu="L40s",
+    timeout=6 * 60 * 60,
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
     secrets=[huggingface_secret],
-    memory=76800,
     concurrency_limit=1,  # Prevent Modal from spinning up multiple containers
 )
 def run_mteb_evaluation(
