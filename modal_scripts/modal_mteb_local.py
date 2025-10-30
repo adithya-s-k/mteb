@@ -66,6 +66,7 @@ image = (
         "uv pip install --python $(command -v python) git+https://github.com/adithya-s-k/colpali.git@feat/gemma3"
     )
     .run_commands("cd /mteb && uv pip install --python $(command -v python) -e .")
+    .run_commands("uv pip install --upgrade transformers --system")
     .run_commands("uv pip install flash-attn --no-build-isolation --system")
 )
 
@@ -602,4 +603,32 @@ if __name__ == "__main__":
 # modal run modal_mteb_local.py::main \
 #     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Multilingual-Hi-En-Kn-merged-1386" \
 #     --benchmarks "NayanaIR-Bench-v1" \
-#     --batch-size 12
+#     --batch-size 12\
+
+# ============================================================================
+# BiDocling Models - ViDoRe v2 Evaluation (Last Token Pooling)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "ibm-granite/granite-docling-258M-bidocling" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 16
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiDocling-MultiGPU-2500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 16
+
+# ============================================================================
+# ColGemma3 Models - ViDoRe v2 Evaluation (Multi-Vector)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "google/gemma-3-4b-it-colgemma3" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 8
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-2500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 8
