@@ -85,10 +85,9 @@ class ColPaliEngineWrapper:
                 outs = self.encode_input(inputs)
                 all_embeds.extend(outs.cpu().to(torch.float32))
 
-        padded = torch.nn.utils.rnn.pad_sequence(
-            all_embeds, batch_first=True, padding_value=0
-        )
-        return padded
+        # Return list of tensors for MaxSim scoring (don't pad)
+        # score_multi_vector() expects List[Tensor] format
+        return all_embeds
 
     def get_text_embeddings(
         self,
@@ -109,10 +108,9 @@ class ColPaliEngineWrapper:
                 outs = self.encode_input(inputs)
                 all_embeds.extend(outs.cpu().to(torch.float32))
 
-        padded = torch.nn.utils.rnn.pad_sequence(
-            all_embeds, batch_first=True, padding_value=0
-        )
-        return padded
+        # Return list of tensors for MaxSim scoring (don't pad)
+        # score_multi_vector() expects List[Tensor] format
+        return all_embeds
 
     def get_fused_embeddings(
         self,

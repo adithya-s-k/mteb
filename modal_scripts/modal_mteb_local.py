@@ -168,6 +168,7 @@ def list_available_benchmarks() -> dict:
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
     secrets=[huggingface_secret],
     memory=76800,
+    concurrency_limit=1,  # Prevent Modal from spinning up multiple containers
 )
 def run_mteb_evaluation(
     model_name: str,

@@ -104,6 +104,11 @@ class Any2AnyDenseRetrievalExactSearch:
         self.corpus_embeddings = defaultdict(list)
         self.results = {}
 
+        # Corpus caching for multilingual datasets
+        self.corpus_embeddings_cache = {}  # {corpus_id: embedding}
+        self.cache_hits = 0
+        self.cache_misses = 0
+
         if self.previous_results is not None:
             self.previous_results = self.load_results_file()
 
@@ -190,7 +195,136 @@ class Any2AnyDenseRetrievalExactSearch:
             )
             chunk_ids = corpus_ids[chunk_start : chunk_start + self.corpus_chunk_size]
 
-            if corpus_modality == "text":
+            # For image modality, check cache to avoid re-encoding
+            if corpus_modality in ["image", "image,text"]:
+                # Check which corpus items are already cached
+                cached_indices = []
+                uncached_indices = []
+                for idx, cid in enumerate(chunk_ids):
+                    if cid in self.corpus_embeddings_cache:
+                        cached_indices.append(idx)
+                        self.cache_hits += 1
+                    else:
+                        uncached_indices.append(idx)
+                        self.cache_misses += 1
+
+                if cached_indices and not uncached_indices:
+                    # All cached - just retrieve from cache
+                    sub_corpus_embeddings = torch.stack([
+                        self.corpus_embeddings_cache[chunk_ids[idx]]
+                        for idx in cached_indices
+                    ])
+                    logger.info(f"Using {len(cached_indices)} cached corpus embeddings")
+                elif uncached_indices and not cached_indices:
+                    # None cached - encode all as before
+                    if corpus_modality == "image":
+                        corpus_dataset = ImageDataset(
+                            chunk, image_column_name="image", transform=self.transform
+                        )
+                        corpus_image_dataloader = DataLoader(
+                            corpus_dataset,
+                            batch_size=self.encode_kwargs["batch_size"],
+                            shuffle=False,
+                            collate_fn=custom_collate_fn,
+                            num_workers=min(math.floor(os.cpu_count() / 2), 16),
+                        )
+                        sub_corpus_embeddings = self.model.get_image_embeddings(
+                            images=corpus_image_dataloader,
+                            task_name=task_name,
+                            prompt_type=PromptType.document,
+                            **self.encode_kwargs,
+                        )
+                    elif corpus_modality == "image,text":
+                        corpus_dataset = ImageDataset(
+                            chunk, image_column_name="image", transform=self.transform
+                        )
+                        corpus_image_dataloader = DataLoader(
+                            corpus_dataset,
+                            batch_size=self.encode_kwargs["batch_size"],
+                            shuffle=False,
+                            collate_fn=custom_collate_fn,
+                            num_workers=min(math.floor(os.cpu_count() / 2), 16),
+                        )
+                        corpus_texts = chunk["text"]
+                        sub_corpus_embeddings = self.model.get_fused_embeddings(
+                            texts=corpus_texts,
+                            images=corpus_image_dataloader,
+                            task_name=task_name,
+                            prompt_type=PromptType.document,
+                            **self.encode_kwargs,
+                        )
+
+                    # Cache the newly encoded embeddings
+                    for idx, cid in enumerate(chunk_ids):
+                        self.corpus_embeddings_cache[cid] = sub_corpus_embeddings[idx]
+                else:
+                    # Mixed - encode uncached and combine with cached
+                    logger.info(f"Cache: {len(cached_indices)} hits, {len(uncached_indices)} misses")
+
+                    # Encode only uncached items
+                    uncached_chunk = chunk.select(uncached_indices)
+
+                    if corpus_modality == "image":
+                        corpus_dataset = ImageDataset(
+                            uncached_chunk, image_column_name="image", transform=self.transform
+                        )
+                        corpus_image_dataloader = DataLoader(
+                            corpus_dataset,
+                            batch_size=self.encode_kwargs["batch_size"],
+                            shuffle=False,
+                            collate_fn=custom_collate_fn,
+                            num_workers=min(math.floor(os.cpu_count() / 2), 16),
+                        )
+                        uncached_embeddings = self.model.get_image_embeddings(
+                            images=corpus_image_dataloader,
+                            task_name=task_name,
+                            prompt_type=PromptType.document,
+                            **self.encode_kwargs,
+                        )
+                    elif corpus_modality == "image,text":
+                        corpus_dataset = ImageDataset(
+                            uncached_chunk, image_column_name="image", transform=self.transform
+                        )
+                        corpus_image_dataloader = DataLoader(
+                            corpus_dataset,
+                            batch_size=self.encode_kwargs["batch_size"],
+                            shuffle=False,
+                            collate_fn=custom_collate_fn,
+                            num_workers=min(math.floor(os.cpu_count() / 2), 16),
+                        )
+                        corpus_texts = uncached_chunk["text"]
+                        uncached_embeddings = self.model.get_fused_embeddings(
+                            texts=corpus_texts,
+                            images=corpus_image_dataloader,
+                            task_name=task_name,
+                            prompt_type=PromptType.document,
+                            **self.encode_kwargs,
+                        )
+
+                    # Cache newly encoded embeddings
+                    for i, idx in enumerate(uncached_indices):
+                        cid = chunk_ids[idx]
+                        self.corpus_embeddings_cache[cid] = uncached_embeddings[i]
+
+                    # Combine cached and newly encoded in correct order
+                    sub_corpus_embeddings = torch.zeros(
+                        len(chunk_ids),
+                        uncached_embeddings.shape[1],
+                        dtype=uncached_embeddings.dtype,
+                        device=uncached_embeddings.device
+                    )
+
+                    # Fill in cached embeddings
+                    for idx in cached_indices:
+                        sub_corpus_embeddings[idx] = self.corpus_embeddings_cache[chunk_ids[idx]]
+
+                    # Fill in newly encoded embeddings
+                    uncached_emb_idx = 0
+                    for idx in uncached_indices:
+                        sub_corpus_embeddings[idx] = uncached_embeddings[uncached_emb_idx]
+                        uncached_emb_idx += 1
+
+            elif corpus_modality == "text":
                 corpus_texts = chunk["text"]
                 sub_corpus_embeddings = self.model.get_text_embeddings(
                     texts=corpus_texts,
@@ -199,34 +333,7 @@ class Any2AnyDenseRetrievalExactSearch:
                     **self.encode_kwargs,
                 )
             else:
-                corpus_dataset = ImageDataset(
-                    chunk, image_column_name="image", transform=self.transform
-                )
-                corpus_image_dataloader = DataLoader(
-                    corpus_dataset,
-                    batch_size=self.encode_kwargs["batch_size"],
-                    shuffle=False,
-                    collate_fn=custom_collate_fn,
-                    num_workers=min(math.floor(os.cpu_count() / 2), 16),
-                )
-                if corpus_modality == "image":
-                    sub_corpus_embeddings = self.model.get_image_embeddings(
-                        images=corpus_image_dataloader,
-                        task_name=task_name,
-                        prompt_type=PromptType.document,
-                        **self.encode_kwargs,
-                    )
-                elif corpus_modality == "image,text":
-                    corpus_texts = chunk["text"]
-                    sub_corpus_embeddings = self.model.get_fused_embeddings(
-                        texts=corpus_texts,
-                        images=corpus_image_dataloader,
-                        task_name=task_name,
-                        prompt_type=PromptType.document,
-                        **self.encode_kwargs,
-                    )
-                else:
-                    raise ValueError(f"Unsupported modality: {corpus_modality}")
+                raise ValueError(f"Unsupported modality: {corpus_modality}")
 
             cos_scores = score_function(query_embeddings, sub_corpus_embeddings)
             cos_scores[torch.isnan(cos_scores)] = -1
@@ -256,7 +363,45 @@ class Any2AnyDenseRetrievalExactSearch:
             for score, corpus_id in result_heaps[qid]:
                 self.results[qid][corpus_id] = score
 
+        # Log cache statistics for image modality
+        if corpus_modality in ["image", "image,text"] and (self.cache_hits + self.cache_misses) > 0:
+            cache_stats = self.get_cache_stats()
+            logger.info(
+                f"Corpus cache performance: {cache_stats['hit_rate_percent']:.1f}% hit rate "
+                f"({cache_stats['cache_hits']} hits, {cache_stats['cache_misses']} misses)"
+            )
+
         return self.results
+
+    def clear_corpus_cache(self):
+        """Clear the corpus embeddings cache.
+
+        Useful for freeing memory or when evaluating a completely different dataset.
+        """
+        self.corpus_embeddings_cache.clear()
+        self.cache_hits = 0
+        self.cache_misses = 0
+        logger.info("Corpus embeddings cache cleared")
+
+    def get_cache_stats(self) -> dict[str, Any]:
+        """Get statistics about cache performance.
+
+        Returns:
+            Dictionary with cache statistics including hits, misses, and hit rate
+        """
+        total = self.cache_hits + self.cache_misses
+        hit_rate = (self.cache_hits / total * 100) if total > 0 else 0.0
+
+        stats = {
+            "cache_size": len(self.corpus_embeddings_cache),
+            "cache_hits": self.cache_hits,
+            "cache_misses": self.cache_misses,
+            "total_lookups": total,
+            "hit_rate_percent": round(hit_rate, 2),
+        }
+
+        logger.info(f"Cache stats: {stats}")
+        return stats
 
     def load_results_file(self):
         # load the first stage results from file in format {qid: {doc_id: score}}
