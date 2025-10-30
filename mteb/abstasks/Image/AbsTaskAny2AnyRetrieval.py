@@ -329,6 +329,11 @@ class AbsTaskAny2AnyRetrieval(AbsTask):
             scores[hf_subset] = self._evaluate_subset(
                 retriever, corpus, queries, relevant_docs, hf_subset, **kwargs
             )
+
+        # Display and save intermediate results after all language subsets complete
+        output_folder = kwargs.get("output_folder", "results")
+        self._save_and_display_intermediate_results(split, scores, output_folder)
+
         return scores
 
     def _evaluate_subset(
@@ -428,6 +433,83 @@ class AbsTaskAny2AnyRetrieval(AbsTask):
 
     def _add_main_score(self, scores: ScoresDict) -> None:
         scores["main_score"] = scores[self.metadata.main_score]
+
+    def _save_and_display_intermediate_results(
+        self, split: str, scores: dict[str, ScoresDict], output_folder: str | None = None
+    ) -> None:
+        """Display and save intermediate results after benchmark completion.
+
+        Args:
+            split: The split name (e.g., "test", "dev")
+            scores: Dictionary mapping hf_subset to scores
+            output_folder: Directory to save intermediate results (default: "results")
+        """
+        # Set default output folder
+        if output_folder is None:
+            output_folder = "results"
+
+        output_path = Path(output_folder)
+        intermediate_dir = output_path / "intermediate_results"
+
+        # Create intermediate results directory if it doesn't exist
+        if not os.path.exists(intermediate_dir):
+            os.makedirs(intermediate_dir)
+
+        # Prepare results for display and saving
+        task_name = self.metadata.name
+        timestamp = asctime()
+
+        # Display results in terminal
+        logger.info("=" * 80)
+        logger.info(f"INTERMEDIATE RESULTS: {task_name} [{split}]")
+        logger.info(f"Timestamp: {timestamp}")
+        logger.info("=" * 80)
+
+        # Prepare JSON output
+        json_output = {
+            "task_name": task_name,
+            "split": split,
+            "timestamp": timestamp,
+            "mteb_version": self.metadata.version if hasattr(self.metadata, "version") else "unknown",
+            "languages": {},
+            "all_scores": {}
+        }
+
+        # Process each language subset
+        for hf_subset, subset_scores in scores.items():
+            # Get language information
+            if self.is_multilingual and hasattr(self.metadata, "hf_subsets_to_langscripts"):
+                languages = self.metadata.hf_subsets_to_langscripts.get(hf_subset, [hf_subset])
+            else:
+                languages = [hf_subset]
+
+            # Display language header
+            lang_display = f"{hf_subset} ({', '.join(languages)})" if languages != [hf_subset] else hf_subset
+            logger.info(f"\nLanguage: {lang_display}")
+            logger.info("-" * 80)
+
+            # Display all metrics
+            for metric_name, metric_value in sorted(subset_scores.items()):
+                if isinstance(metric_value, float):
+                    logger.info(f"  {metric_name:40s}: {metric_value:.4f}")
+                else:
+                    logger.info(f"  {metric_name:40s}: {metric_value}")
+
+            # Add to JSON output
+            json_output["languages"][hf_subset] = languages
+            json_output["all_scores"][hf_subset] = subset_scores
+
+        logger.info("=" * 80)
+
+        # Save to JSON file
+        json_filename = f"intermediate_{task_name}_{split}.json"
+        json_filepath = intermediate_dir / json_filename
+
+        with open(json_filepath, "w") as f:
+            json.dump(json_output, f, indent=2)
+
+        logger.info(f"Intermediate results saved to: {json_filepath}")
+        logger.info("=" * 80 + "\n")
 
     def _calculate_metrics_from_split(
         self, split: str, hf_subset: str | None = None, compute_overall: bool = False
