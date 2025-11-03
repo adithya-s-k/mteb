@@ -50,7 +50,7 @@ class Encoder(torch.nn.Module):
         **kwargs,
     ) -> torch.Tensor:
         if inputs_embeds is None:
-            inputs_embeds = self.base.model.embed_tokens(input_ids)
+            inputs_embeds = self.base.get_input_embeddings()(input_ids)
             if pixel_values is not None:
                 pixel_values = pixel_values.type(self.base.visual.get_dtype())
                 image_embeds = self.base.visual(

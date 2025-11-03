@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Auto-calibrating MTEB results visualizer with interactive charts.
+"""Auto-calibrating MTEB results visualizer with interactive charts.
 
 Features:
 - Zero configuration - extracts everything from JSON structure
@@ -13,17 +12,18 @@ Usage:
     python generate_viz.py [path_to_results_dir]
 """
 
+from __future__ import annotations
+
 import json
 import re
 import sys
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any, Tuple
+from pathlib import Path
+from typing import Any
 
 
 def extract_model_display_name(model_path: str) -> str:
-    """
-    Auto-extract a clean display name from model path.
+    """Auto-extract a clean display name from model path.
 
     Examples:
         "vidore/colpali-v1.3" → "colpali-v1.3"
@@ -49,8 +49,7 @@ def extract_model_display_name(model_path: str) -> str:
 
 
 def format_task_name(raw_name: str) -> str:
-    """
-    Auto-format CamelCase task names to readable format.
+    """Auto-format CamelCase task names to readable format.
 
     Examples:
         "Vidore2ESGReportsRetrieval" → "Vidore2 ESG Reports Retrieval"
@@ -65,9 +64,8 @@ def format_task_name(raw_name: str) -> str:
     return spaced.strip()
 
 
-def extract_benchmark_name(json_data: Dict[str, Any], file_path: Path) -> str:
-    """
-    Auto-detect benchmark name from JSON or directory structure.
+def extract_benchmark_name(json_data: dict[str, Any], file_path: Path) -> str:
+    """Auto-detect benchmark name from JSON or directory structure.
 
     Priority:
     1. JSON 'benchmarks' field
@@ -89,9 +87,8 @@ def extract_benchmark_name(json_data: Dict[str, Any], file_path: Path) -> str:
     return "Unknown Benchmark"
 
 
-def generate_color_palette(num_colors: int) -> List[str]:
-    """
-    Generate N visually distinct colors using HSL color space.
+def generate_color_palette(num_colors: int) -> list[str]:
+    """Generate N visually distinct colors using HSL color space.
     Colors are print-friendly and work in grayscale.
     """
     if num_colors <= 0:
@@ -122,9 +119,8 @@ def generate_color_palette(num_colors: int) -> List[str]:
     return colors
 
 
-def discover_available_metrics(results: List[Dict[str, Any]]) -> List[Tuple[str, str]]:
-    """
-    Auto-discover which metrics are available across all results.
+def discover_available_metrics(results: list[dict[str, Any]]) -> list[tuple[str, str]]:
+    """Auto-discover which metrics are available across all results.
     Returns list of (metric_key, display_name) tuples.
     """
     all_metrics = set()
@@ -156,9 +152,8 @@ def discover_available_metrics(results: List[Dict[str, Any]]) -> List[Tuple[str,
     return available
 
 
-def extract_languages_from_result(result: Dict[str, Any]) -> List[str]:
-    """
-    Extract all unique languages from a result.
+def extract_languages_from_result(result: dict[str, Any]) -> list[str]:
+    """Extract all unique languages from a result.
     Returns list of language codes (e.g., ['en', 'hi', 'kn']).
     """
     languages = set()
@@ -172,12 +167,11 @@ def extract_languages_from_result(result: Dict[str, Any]) -> List[str]:
             if lang:
                 languages.add(lang)
 
-    return sorted(list(languages))
+    return sorted(languages)
 
 
 def format_language_name(lang_code: str) -> str:
-    """
-    Format language code to display name.
+    """Format language code to display name.
 
     Examples:
         "en" → "English"
@@ -210,10 +204,10 @@ def format_language_name(lang_code: str) -> str:
     return lang_map.get(lang_code.lower(), lang_code.capitalize())
 
 
-def calculate_avg_by_language(result: Dict[str, Any], metric: str, language: str) -> float:
-    """
-    Calculate average of a metric across all tasks for a specific language.
-    """
+def calculate_avg_by_language(
+    result: dict[str, Any], metric: str, language: str
+) -> float:
+    """Calculate average of a metric across all tasks for a specific language."""
     tasks = result.get("results", {}).get("task_results", [])
     values = []
 
@@ -229,10 +223,9 @@ def calculate_avg_by_language(result: Dict[str, Any], metric: str, language: str
 
 
 def organize_by_benchmark_and_language(
-    results: List[Dict[str, Any]],
-) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
-    """
-    Group results by benchmark and then by language.
+    results: list[dict[str, Any]],
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """Group results by benchmark and then by language.
     Returns: {benchmark: {language: [results]}}
     """
     by_benchmark_lang = {}
@@ -253,7 +246,7 @@ def organize_by_benchmark_and_language(
     return by_benchmark_lang
 
 
-def scan_directory_recursive(path: Path) -> List[Path]:
+def scan_directory_recursive(path: Path) -> list[Path]:
     """Recursively scan directory for JSON files."""
     json_files = []
 
@@ -266,7 +259,7 @@ def scan_directory_recursive(path: Path) -> List[Path]:
     return sorted(json_files)
 
 
-def load_results(path: Path = None) -> List[Dict[str, Any]]:
+def load_results(path: Path = None) -> list[dict[str, Any]]:
     """Load all completed JSON results from path, with auto-enrichment."""
     if path is None:
         path = Path.cwd()
@@ -304,7 +297,7 @@ def load_results(path: Path = None) -> List[Dict[str, Any]]:
     return results
 
 
-def calculate_avg(result: Dict[str, Any], metric: str) -> float:
+def calculate_avg(result: dict[str, Any], metric: str) -> float:
     """Calculate average of a metric across all tasks."""
     tasks = result.get("results", {}).get("task_results", [])
     values = [t.get("scores", {}).get("test", [{}])[0].get(metric, 0) for t in tasks]
@@ -312,8 +305,8 @@ def calculate_avg(result: Dict[str, Any], metric: str) -> float:
 
 
 def organize_by_benchmark(
-    results: List[Dict[str, Any]],
-) -> Dict[str, List[Dict[str, Any]]]:
+    results: list[dict[str, Any]],
+) -> dict[str, list[dict[str, Any]]]:
     """Group results by benchmark."""
     by_benchmark = {}
 
@@ -326,9 +319,8 @@ def organize_by_benchmark(
     return by_benchmark
 
 
-def generate_html(results: List[Dict[str, Any]]) -> str:
+def generate_html(results: list[dict[str, Any]]) -> str:
     """Generate interactive HTML with Chart.js visualizations."""
-
     if not results:
         return "<html><body><h1>No results found</h1></body></html>"
 
@@ -336,7 +328,7 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
     by_benchmark = organize_by_benchmark(results)
 
     # Generate color palette
-    all_models = list(set(r["_display_name"] for r in results))
+    all_models = list({r["_display_name"] for r in results})
     colors = generate_color_palette(len(all_models))
     model_colors = dict(zip(all_models, colors))
 
@@ -347,7 +339,7 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
     all_languages = set()
     for result in results:
         all_languages.update(extract_languages_from_result(result))
-    all_languages = sorted(list(all_languages))
+    all_languages = sorted(all_languages)
 
     html = """<!DOCTYPE html>
 <html>
@@ -724,7 +716,7 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
         benchmark_languages = set()
         for result in benchmark_results:
             benchmark_languages.update(extract_languages_from_result(result))
-        benchmark_languages = sorted(list(benchmark_languages))
+        benchmark_languages = sorted(benchmark_languages)
 
         if len(benchmark_languages) > 1:
             html += """
@@ -735,14 +727,16 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
 """
 
             # Create tabs for each language
-            bench_id = benchmark_name.replace(" ", "_").replace("(", "").replace(")", "")
+            bench_id = (
+                benchmark_name.replace(" ", "_").replace("(", "").replace(")", "")
+            )
 
             # Tab navigation
             html += f'        <div class="nav-tabs" id="langTabs_{bench_id}">\n'
             for idx, lang in enumerate(benchmark_languages):
                 active_class = " active" if idx == 0 else ""
-                html += f'            <button class="nav-tab{active_class}" onclick="showLangTab(\'{bench_id}\', \'{lang}\')">{format_language_name(lang)}</button>\n'
-            html += '        </div>\n'
+                html += f"            <button class=\"nav-tab{active_class}\" onclick=\"showLangTab('{bench_id}', '{lang}')\">{format_language_name(lang)}</button>\n"
+            html += "        </div>\n"
 
             # Tab content for each language
             for idx, lang in enumerate(benchmark_languages):
@@ -791,7 +785,8 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
 
                         html += "                </tr>\n"
 
-                html += """
+                html += (
+                    """
                 </tbody>
             </table>
 
@@ -808,7 +803,10 @@ def generate_html(results: List[Dict[str, Any]]) -> str:
                 </div>
             </div>
         </div>
-""".replace("{lang}", lang).replace("{bench_id}", bench_id).replace("{lang_name}", format_language_name(lang))
+""".replace("{lang}", lang)
+                    .replace("{bench_id}", bench_id)
+                    .replace("{lang_name}", format_language_name(lang))
+                )
 
         # Per-task breakdown
         html += """
