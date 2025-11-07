@@ -679,3 +679,31 @@ if __name__ == "__main__":
 #     --model "Nayana-cognitivelab/NayanaEmbed-ColQwen2-v1.0-3000" \
 #     --benchmarks "NayanaIR-Bench-v12" \
 #     --batch-size 12
+
+# ============================================================================
+# NayanaEmbed-ColSmol Models - ViDoRe v2 Evaluation (Multi-Vector)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColSmol-256M-2500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColSmol-256M-5544" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# ============================================================================
+# NayanaEmbed-ColSmol Models - NayanaIR-Bench-v12 Evaluation (Multi-Vector)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColSmol-256M-2500" \
+#     --benchmarks "NayanaIR-Bench-v12" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColSmol-256M-5544" \
+#     --benchmarks "NayanaIR-Bench-v12" \
+#     --batch-size 12
