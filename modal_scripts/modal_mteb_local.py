@@ -168,7 +168,7 @@ def list_available_benchmarks() -> dict:
     timeout=6 * 60 * 60,
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
     secrets=[huggingface_secret],
-    concurrency_limit=1,  # Prevent Modal from spinning up multiple containers
+    # concurrency_limit=1,  # Prevent Modal from spinning up multiple containers
 )
 def run_mteb_evaluation(
     model_name: str,
@@ -633,3 +633,49 @@ if __name__ == "__main__":
 #     --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-2500" \
 #     --benchmarks "ViDoRe(v2)" \
 #     --batch-size 8
+
+# ============================================================================
+# NayanaEmbed-ColPali Models - ViDoRe v2 Evaluation (Multi-Vector)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-1500" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-2772" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# ============================================================================
+# NayanaEmbed-ColQwen2 Models - ViDoRe v2 Evaluation (Multi-Vector)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColQwen2-v1.0-3000" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# ============================================================================
+# NayanaEmbed-ColPali Models - NayanaIR-Bench-v12 Evaluation (Multi-Vector)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-1500" \
+#     --benchmarks "NayanaIR-Bench-v12" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-2772" \
+#     --benchmarks "NayanaIR-Bench-v12" \
+#     --batch-size 12
+
+# ============================================================================
+# NayanaEmbed-ColQwen2 Models - NayanaIR-Bench-v12 Evaluation (Multi-Vector)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColQwen2-v1.0-3000" \
+#     --benchmarks "NayanaIR-Bench-v12" \
+#     --batch-size 12

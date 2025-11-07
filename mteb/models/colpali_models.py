@@ -83,7 +83,13 @@ class ColPaliEngineWrapper:
                 ]
                 inputs = self.processor.process_images(imgs).to(self.device)
                 outs = self.encode_input(inputs)
-                all_embeds.extend(outs.cpu().to(torch.float32))
+                # Convert from (batch_size, seq_len, dim) to List[Tensor(seq_len, dim)]
+                outs = outs.cpu().to(torch.float32)
+                if outs.dim() == 3:
+                    # Unbatch: split batch dimension into list
+                    all_embeds.extend(list(torch.unbind(outs, dim=0)))
+                else:
+                    all_embeds.extend(outs)
 
         # Return list of tensors for MaxSim scoring (don't pad)
         # score_multi_vector() expects List[Tensor] format
@@ -106,7 +112,13 @@ class ColPaliEngineWrapper:
                 ]
                 inputs = self.processor.process_texts(batch).to(self.device)
                 outs = self.encode_input(inputs)
-                all_embeds.extend(outs.cpu().to(torch.float32))
+                # Convert from (batch_size, seq_len, dim) to List[Tensor(seq_len, dim)]
+                outs = outs.cpu().to(torch.float32)
+                if outs.dim() == 3:
+                    # Unbatch: split batch dimension into list
+                    all_embeds.extend(list(torch.unbind(outs, dim=0)))
+                else:
+                    all_embeds.extend(outs)
 
         # Return list of tensors for MaxSim scoring (don't pad)
         # score_multi_vector() expects List[Tensor] format

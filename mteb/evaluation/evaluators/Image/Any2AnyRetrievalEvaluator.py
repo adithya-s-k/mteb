@@ -210,10 +210,17 @@ class Any2AnyDenseRetrievalExactSearch:
 
                 if cached_indices and not uncached_indices:
                     # All cached - just retrieve from cache
-                    sub_corpus_embeddings = torch.stack([
+                    cached_embs = [
                         self.corpus_embeddings_cache[chunk_ids[idx]]
                         for idx in cached_indices
-                    ])
+                    ]
+                    # Check if embeddings are multi-vector (list of tensors with variable length)
+                    if isinstance(cached_embs[0], torch.Tensor) and cached_embs[0].dim() == 2:
+                        # Multi-vector embeddings - keep as list
+                        sub_corpus_embeddings = cached_embs
+                    else:
+                        # Dense embeddings - stack into tensor
+                        sub_corpus_embeddings = torch.stack(cached_embs)
                     logger.info(f"Using {len(cached_indices)} cached corpus embeddings")
                 elif uncached_indices and not cached_indices:
                     # None cached - encode all as before
@@ -307,22 +314,38 @@ class Any2AnyDenseRetrievalExactSearch:
                         self.corpus_embeddings_cache[cid] = uncached_embeddings[i]
 
                     # Combine cached and newly encoded in correct order
-                    sub_corpus_embeddings = torch.zeros(
-                        len(chunk_ids),
-                        uncached_embeddings.shape[1],
-                        dtype=uncached_embeddings.dtype,
-                        device=uncached_embeddings.device
-                    )
+                    # Check if embeddings are multi-vector (list of tensors)
+                    if isinstance(uncached_embeddings, list) and isinstance(uncached_embeddings[0], torch.Tensor) and uncached_embeddings[0].dim() == 2:
+                        # Multi-vector embeddings - combine as list
+                        sub_corpus_embeddings = [None] * len(chunk_ids)
 
-                    # Fill in cached embeddings
-                    for idx in cached_indices:
-                        sub_corpus_embeddings[idx] = self.corpus_embeddings_cache[chunk_ids[idx]]
+                        # Fill in cached embeddings
+                        for idx in cached_indices:
+                            sub_corpus_embeddings[idx] = self.corpus_embeddings_cache[chunk_ids[idx]]
 
-                    # Fill in newly encoded embeddings
-                    uncached_emb_idx = 0
-                    for idx in uncached_indices:
-                        sub_corpus_embeddings[idx] = uncached_embeddings[uncached_emb_idx]
-                        uncached_emb_idx += 1
+                        # Fill in newly encoded embeddings
+                        uncached_emb_idx = 0
+                        for idx in uncached_indices:
+                            sub_corpus_embeddings[idx] = uncached_embeddings[uncached_emb_idx]
+                            uncached_emb_idx += 1
+                    else:
+                        # Dense embeddings - combine as tensor
+                        sub_corpus_embeddings = torch.zeros(
+                            len(chunk_ids),
+                            uncached_embeddings.shape[1],
+                            dtype=uncached_embeddings.dtype,
+                            device=uncached_embeddings.device
+                        )
+
+                        # Fill in cached embeddings
+                        for idx in cached_indices:
+                            sub_corpus_embeddings[idx] = self.corpus_embeddings_cache[chunk_ids[idx]]
+
+                        # Fill in newly encoded embeddings
+                        uncached_emb_idx = 0
+                        for idx in uncached_indices:
+                            sub_corpus_embeddings[idx] = uncached_embeddings[uncached_emb_idx]
+                            uncached_emb_idx += 1
 
             elif corpus_modality == "text":
                 corpus_texts = chunk["text"]
