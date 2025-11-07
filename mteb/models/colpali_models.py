@@ -248,3 +248,58 @@ colpali_v1_3 = ModelMeta(
     use_instructions=True,
     training_datasets=COLPALI_TRAINING_DATA,
 )
+
+# Nayana-cognitivelab fine-tuned ColPali models
+nayana_colpali_v1_3_1500 = ModelMeta(
+    loader=partial(
+        ColPaliWrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-1500",
+        revision="main",
+        torch_dtype=torch.float16,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-1500",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=2_920_000_000,
+    memory_usage_mb=4700,
+    max_tokens=16384,
+    embed_dim=128,
+    license="apache-2.0",
+    open_weights=True,
+    public_training_code="https://github.com/illuin-tech/colpali",
+    public_training_data="https://huggingface.co/datasets/vidore/colpali_train_set",
+    framework=["ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-1500",
+    similarity_fn_name="max_sim",
+    use_instructions=True,
+    training_datasets=COLPALI_TRAINING_DATA,
+)
+
+nayana_colpali_v1_3_2772 = ModelMeta(
+    loader=partial(
+        ColPaliWrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-2772",
+        revision="main",
+        torch_dtype=torch.float16,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-2772",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=2_920_000_000,
+    memory_usage_mb=4700,
+    max_tokens=16384,
+    embed_dim=128,
+    license="apache-2.0",
+    open_weights=True,
+    public_training_code="https://github.com/illuin-tech/colpali",
+    public_training_data="https://huggingface.co/datasets/vidore/colpali_train_set",
+    framework=["ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-ColPali-v1.3-2772",
+    similarity_fn_name="max_sim",
+    use_instructions=True,
+    training_datasets=COLPALI_TRAINING_DATA,
+)
