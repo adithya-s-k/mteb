@@ -168,6 +168,7 @@ def list_available_benchmarks() -> dict:
     timeout=6 * 60 * 60,
     volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
     secrets=[huggingface_secret],
+    memory=40960,
     # concurrency_limit=1,  # Prevent Modal from spinning up multiple containers
 )
 def run_mteb_evaluation(
@@ -362,7 +363,7 @@ def main(
         modal run modal_mteb_local.py --model bigemma3-4b-embedding --pooling-strategy cls --batch-size 8
 
         # Evaluate multiple models in batch mode
-        modal run modal_mteb_local.py --model "bigemma3-4b-embedding,vidore/colqwen2.5-v0.2" --batch-mode True
+        modal run modal_mteb_local.py --model "bigemma3-4b-embedding,vidore/colqwen2.5-v0.2" --batch-mode
 
         # Evaluate on specific Vidore tasks
         modal run modal_mteb_local.py --model bigemma3-4b-embedding --benchmarks "ViDoRe(v1)"

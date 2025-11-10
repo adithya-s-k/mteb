@@ -2164,6 +2164,64 @@ NAYANA_IR_BENCH_V1 = Benchmark(
 """,
 )
 
+NAYANA_IR_BENCH_MONOLINGUAL = Benchmark(
+    name="NayanaIR-Bench-Monolingual",
+    tasks=get_tasks(
+        tasks=[
+            "NayanaIRMonoBench-ar",
+            "NayanaIRMonoBench-bn",
+            "NayanaIRMonoBench-de",
+            "NayanaIRMonoBench-en",
+            "NayanaIRMonoBench-es",
+            "NayanaIRMonoBench-fr",
+            "NayanaIRMonoBench-gu",
+            "NayanaIRMonoBench-hi",
+            "NayanaIRMonoBench-it",
+            "NayanaIRMonoBench-ja",
+            "NayanaIRMonoBench-kn",
+            "NayanaIRMonoBench-ko",
+            "NayanaIRMonoBench-ml",
+            "NayanaIRMonoBench-mr",
+            "NayanaIRMonoBench-or",
+            "NayanaIRMonoBench-pa",
+            "NayanaIRMonoBench-ru",
+            "NayanaIRMonoBench-sa",
+            "NayanaIRMonoBench-ta",
+            "NayanaIRMonoBench-te",
+            "NayanaIRMonoBench-th",
+            "NayanaIRMonoBench-zh",
+        ],
+    ),
+    description="Monolingual document retrieval benchmark covering 22 languages for evaluating multilingual text-image embedding models on document understanding tasks.",
+    reference="https://huggingface.co/Nayana-cognitivelab",
+    citation=r"""
+@article{nayana2025embed,
+  author = {CognitiveLab},
+  title = {Nayana Embed: Multilingual Document Retrieval Benchmark},
+  year = {2025},
+}
+""",
+)
+
+NAYANA_IR_CROSS_BENCH = Benchmark(
+    name="NayanaIR-CrossBench",
+    display_name="NayanaIR-CrossBench",
+    tasks=get_tasks(
+        tasks=[
+            "NayanaIRCrossBench",
+        ],
+    ),
+    description="Retrieve associated pages according to questions using Nayana multilingual document retrieval dataset.",
+    reference="https://huggingface.co/datasets/Nayana-cognitivelab/NayanaIR-CrossBench-v3",
+    citation=r"""
+@article{nayana2025embed,
+  author = {CognitiveLab},
+  title = {Nayana Embed: Multilingual Document Retrieval Benchmark},
+  year = {2025},
+}
+""",
+)
+
 R2MED = Benchmark(
     name="R2MED",
     display_name="Reasoning-driven medical retrieval",

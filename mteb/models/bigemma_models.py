@@ -122,8 +122,7 @@ class BiGemma3Wrapper:
         batch_size: int = 32,
         **kwargs: Any,
     ) -> torch.Tensor:
-        """
-        Generate embeddings for text inputs.
+        """Generate embeddings for text inputs.
 
         Args:
             texts: List of text strings
@@ -173,8 +172,7 @@ class BiGemma3Wrapper:
         batch_size: int = 16,
         **kwargs: Any,
     ) -> torch.Tensor:
-        """
-        Generate embeddings for image inputs.
+        """Generate embeddings for image inputs.
 
         Args:
             images: List of PIL Images or DataLoader
@@ -260,8 +258,7 @@ class BiGemma3Wrapper:
         fusion_mode: str = "concat",
         **kwargs: Any,
     ) -> torch.Tensor:
-        """
-        Generate fused embeddings for multimodal inputs.
+        """Generate fused embeddings for multimodal inputs.
 
         For BiGemma3, we support three fusion modes:
         1. "concat": Process image+text together (true multimodal)
@@ -362,8 +359,7 @@ class BiGemma3Wrapper:
         text_embeddings: torch.Tensor,
         image_embeddings: torch.Tensor,
     ) -> torch.Tensor:
-        """
-        Calculate similarity scores between text and image embeddings.
+        """Calculate similarity scores between text and image embeddings.
 
         Uses the BiGemmaProcessor3 score method for consistency with
         the model's training objective.
