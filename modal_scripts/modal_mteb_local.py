@@ -165,8 +165,11 @@ def list_available_benchmarks() -> dict:
     image=image,
     # gpu="A100-40GB",
     gpu="L40s",
-    timeout=6 * 60 * 60,
-    volumes={"/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True)},
+    timeout=12 * 60 * 60,
+    volumes={
+        "/cache": modal.Volume.from_name("mteb-cache", create_if_missing=True),
+        "/output": modal.Volume.from_name("nayana-ir-evals", create_if_missing=True),
+    },
     secrets=[huggingface_secret],
     memory=40960,
     # concurrency_limit=1,  # Prevent Modal from spinning up multiple containers
@@ -250,8 +253,16 @@ def run_mteb_evaluation(
         results = evaluation.run(model, **eval_kwargs)
         serializable_results = extract_serializable_results(results)
 
-        print(f"Evaluation completed successfully for {model_name}")
-        return {
+        # Save results to volume
+        volume_results_path = "/output/new_results"
+        os.makedirs(volume_results_path, exist_ok=True)
+
+        model_name_safe = model_name.replace("/", "_")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        volume_filename = f"{model_name_safe}_{timestamp}.json"
+        volume_filepath = os.path.join(volume_results_path, volume_filename)
+
+        results_dict = {
             "model": model_name,
             "benchmarks": benchmarks,
             "status": "completed",
@@ -259,6 +270,17 @@ def run_mteb_evaluation(
             "timestamp": datetime.now().isoformat(),
             "mteb_source": "local",
         }
+
+        with open(volume_filepath, "w", encoding="utf-8") as f:
+            json.dump(results_dict, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"Results saved to volume at: {volume_filepath}")
+
+        # Commit the volume to persist changes
+        modal.Volume.from_name("nayana-ir-evals").commit()
+
+        print(f"Evaluation completed successfully for {model_name}")
+        return results_dict
 
     except Exception as e:
         print(f"Error during evaluation: {str(e)}")

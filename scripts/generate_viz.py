@@ -199,6 +199,17 @@ def format_language_name(lang_code: str) -> str:
         "japanese": "Japanese",
         "ko": "Korean",
         "korean": "Korean",
+        "bn": "Bengali",
+        "gu": "Gujarati",
+        "it": "Italian",
+        "ml": "Malayalam",
+        "mr": "Marathi",
+        "or": "Odia",
+        "pa": "Punjabi",
+        "sa": "Sanskrit",
+        "ta": "Tamil",
+        "te": "Telugu",
+        "th": "Thai",
     }
 
     return lang_map.get(lang_code.lower(), lang_code.capitalize())
@@ -298,9 +309,18 @@ def load_results(path: Path = None) -> list[dict[str, Any]]:
 
 
 def calculate_avg(result: dict[str, Any], metric: str) -> float:
-    """Calculate average of a metric across all tasks."""
+    """Calculate average of a metric across all tasks and all languages."""
     tasks = result.get("results", {}).get("task_results", [])
-    values = [t.get("scores", {}).get("test", [{}])[0].get(metric, 0) for t in tasks]
+    values = []
+
+    for task in tasks:
+        # Get all language scores for this task
+        scores_list = task.get("scores", {}).get("test", [])
+        for scores in scores_list:
+            value = scores.get(metric, 0)
+            if value is not None:
+                values.append(value)
+
     return sum(values) / len(values) if values else 0
 
 
@@ -759,9 +779,15 @@ def generate_html(results: list[dict[str, Any]]) -> str:
                 <tbody>
 """
 
-                # Sort by primary metric for this language
+                # Filter models that have data for this language, then sort
+                models_with_lang = [
+                    result
+                    for result in benchmark_results
+                    if lang in extract_languages_from_result(result)
+                ]
+
                 lang_sorted_results = sorted(
-                    benchmark_results,
+                    models_with_lang,
                     key=lambda r: calculate_avg_by_language(r, primary_metric, lang),
                     reverse=True,
                 )
@@ -770,20 +796,18 @@ def generate_html(results: list[dict[str, Any]]) -> str:
                     model_name = result["_display_name"]
                     color = model_colors[model_name]
 
-                    # Check if this model has data for this language
-                    if lang in extract_languages_from_result(result):
-                        html += f"""
+                    html += f"""
                 <tr>
                     <td class="model-name">
                         <span class="model-indicator" style="background-color: {color};"></span>
                         {model_name}
                     </td>
 """
-                        for metric_key, _ in available_metrics:
-                            value = calculate_avg_by_language(result, metric_key, lang)
-                            html += f'                    <td class="metric">{value * 100:.2f}%</td>\n'
+                    for metric_key, _ in available_metrics:
+                        value = calculate_avg_by_language(result, metric_key, lang)
+                        html += f'                    <td class="metric">{value * 100:.2f}%</td>\n'
 
-                        html += "                </tr>\n"
+                    html += "                </tr>\n"
 
                 html += (
                     """
@@ -839,6 +863,8 @@ def generate_html(results: list[dict[str, Any]]) -> str:
             <tbody>
 """
 
+            # Collect results with their averaged metrics for this task
+            task_results = []
             for result in benchmark_results:
                 tasks = result.get("results", {}).get("task_results", [])
                 task = next((t for t in tasks if t["task_name"] == task_name), None)
@@ -846,21 +872,47 @@ def generate_html(results: list[dict[str, Any]]) -> str:
                 if task:
                     model_name = result["_display_name"]
                     color = model_colors[model_name]
-                    scores = task.get("scores", {}).get("test", [{}])[0]
 
-                    html += f"""
+                    # Calculate average metrics across all languages for this task
+                    scores_list = task.get("scores", {}).get("test", [])
+                    avg_metrics = {}
+                    for metric_key, _ in available_metrics:
+                        values = [
+                            s.get(metric_key, 0)
+                            for s in scores_list
+                            if s.get(metric_key) is not None
+                        ]
+                        avg_metrics[metric_key] = (
+                            sum(values) / len(values) if values else 0
+                        )
+
+                    task_results.append(
+                        {
+                            "model_name": model_name,
+                            "color": color,
+                            "metrics": avg_metrics,
+                            "sort_value": avg_metrics.get(primary_metric, 0),
+                        }
+                    )
+
+            # Sort by primary metric
+            task_results.sort(key=lambda x: x["sort_value"], reverse=True)
+
+            # Generate HTML rows
+            for task_result in task_results:
+                html += f"""
                 <tr>
                     <td class="model-name">
-                        <span class="model-indicator" style="background-color: {color};"></span>
-                        {model_name}
+                        <span class="model-indicator" style="background-color: {task_result['color']};"></span>
+                        {task_result['model_name']}
                     </td>
 """
 
-                    for metric_key, _ in available_metrics:
-                        value = scores.get(metric_key, 0)
-                        html += f'                    <td class="metric">{value * 100:.2f}%</td>\n'
+                for metric_key, _ in available_metrics:
+                    value = task_result["metrics"].get(metric_key, 0)
+                    html += f'                    <td class="metric">{value * 100:.2f}%</td>\n'
 
-                    html += "                </tr>\n"
+                html += "                </tr>\n"
 
             html += """
             </tbody>

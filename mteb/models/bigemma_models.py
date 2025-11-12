@@ -1107,3 +1107,465 @@ bigemma_multilingual_hi_en_kn_1386 = ModelMeta(
         "ArxivQA": ["train"],
     },
 )
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-6langs-merged-2500
+bigemma_6langs_2500 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-6langs-merged-2500",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-6langs-merged-2500",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-6langs-merged-2500",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-6langs-merged-2860
+bigemma_6langs_2860 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-6langs-merged-2860",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-6langs-merged-2860",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,
+    memory_usage_mb=8000,
+    max_tokens=8192,
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-6langs-merged-2860",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-250
+bigemma3_6langs_hardneg_250 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-250",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-250",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-250",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-500
+bigemma3_6langs_hardneg_500 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-500",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-500",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-500",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-750
+bigemma3_6langs_hardneg_750 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-750",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-750",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-750",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1000
+bigemma3_6langs_hardneg_1000 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1000",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1000",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1000",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1250
+bigemma3_6langs_hardneg_1250 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1250",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1250",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1250",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1500
+bigemma3_6langs_hardneg_1500 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1500",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1500",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1500",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1750
+bigemma3_6langs_hardneg_1750 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1750",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1750",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-1750",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2000
+bigemma3_6langs_hardneg_2000 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2000",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2000",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2000",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2145
+bigemma3_6langs_hardneg_2145 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2145",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2145",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2145",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
