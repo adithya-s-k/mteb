@@ -126,6 +126,36 @@ nayana_colqwen2_v1_0_3000 = ModelMeta(
     training_datasets=COLPALI_TRAINING_DATA,
 )
 
+nayana_colqwen2_v1_0_22langs_6438 = ModelMeta(
+    loader=partial(
+        ColQwen2Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-ColQwen2-v1.0-22langs-merged-6438",
+        revision="main",
+        torch_dtype=torch.float16,
+        attn_implementation="flash_attention_2"
+        if is_flash_attn_2_available()
+        else None,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-ColQwen2-v1.0-22langs-merged-6438",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=2_210_000_000,
+    memory_usage_mb=7200,
+    max_tokens=32768,
+    embed_dim=128,
+    license="apache-2.0",
+    open_weights=True,
+    public_training_code="https://github.com/illuin-tech/colpali",
+    public_training_data="https://huggingface.co/datasets/vidore/colpali_train_set",
+    framework=["ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-ColQwen2-v1.0-22langs-merged-6438",
+    similarity_fn_name="max_sim",
+    use_instructions=True,
+    training_datasets=COLPALI_TRAINING_DATA,
+)
+
 colqwen2_5 = ModelMeta(
     loader=partial(
         ColQwen2_5Wrapper,

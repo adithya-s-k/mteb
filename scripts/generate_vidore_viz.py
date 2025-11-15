@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Generate minimal, print-friendly HTML visualization of MTEB results.
+"""Generate minimal, print-friendly HTML visualization of MTEB results.
 
 Usage:
     python generate_viz.py [path_to_results_dir]
@@ -8,30 +7,33 @@ Usage:
 If no path provided, searches current directory for JSON files.
 """
 
+from __future__ import annotations
+
 import json
-import glob
 import sys
 from pathlib import Path
 
 # Task name mapping
 TASK_NAMES = {
-    'Vidore2BioMedicalLecturesRetrieval': 'MIT Biomedical Multilingual',
-    'Vidore2EconomicsReportsRetrieval': 'Economics Macro Multilingual',
-    'Vidore2ESGReportsHLRetrieval': 'ESG Restaurant Human English',
-    'Vidore2ESGReportsRetrieval': 'ESG Restaurant Synthetic Multilingual',
+    "Vidore2BioMedicalLecturesRetrieval": "MIT Biomedical Multilingual",
+    "Vidore2EconomicsReportsRetrieval": "Economics Macro Multilingual",
+    "Vidore2ESGReportsHLRetrieval": "ESG Restaurant Human English",
+    "Vidore2ESGReportsRetrieval": "ESG Restaurant Synthetic Multilingual",
 }
+
 
 def get_task_name(raw_name):
     """Map raw task name to readable name."""
     return TASK_NAMES.get(raw_name, raw_name)
 
+
 def get_model_name(full_name):
     """Get short model name."""
-    if 'HardNeg' in full_name:
-        return 'HardNeg'
-    if 'gemma-3-4b-it' in full_name:
-        return 'Base'
-    return full_name.split('/')[-1]
+    if "gemma-3-4b-it" in full_name:
+        return "Base"
+    # For model names, return the part after the slash
+    return full_name.split("/")[-1]
+
 
 def load_results(path=None):
     """Load all completed JSON results from path."""
@@ -40,29 +42,30 @@ def load_results(path=None):
     else:
         search_path = Path.cwd()
 
-    json_files = list(search_path.glob('*.json'))
+    json_files = list(search_path.glob("*.json"))
     results = []
 
     for file in json_files:
         try:
             with open(file) as f:
                 data = json.load(f)
-                if data.get('status') == 'completed':
+                if data.get("status") == "completed":
                     results.append(data)
         except Exception as e:
             print(f"Warning: Could not load {file.name}: {e}")
 
     return results
 
+
 def calculate_avg(result, metric):
     """Calculate average of a metric across all tasks."""
-    tasks = result.get('results', {}).get('task_results', [])
-    values = [t.get('scores', {}).get('test', [{}])[0].get(metric, 0) for t in tasks]
+    tasks = result.get("results", {}).get("task_results", [])
+    values = [t.get("scores", {}).get("test", [{}])[0].get(metric, 0) for t in tasks]
     return sum(values) / len(values) if values else 0
+
 
 def generate_html(results):
     """Generate minimal, print-friendly HTML."""
-
     html = """<!DOCTYPE html>
 <html>
 <head>
@@ -187,6 +190,7 @@ def generate_html(results):
 
     # Header
     from datetime import datetime
+
     html += f"""
     <h1>MTEB Vidore Evaluation Results</h1>
     <div class="timestamp">Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div>
@@ -214,20 +218,22 @@ def generate_html(results):
         <tbody>
 """
 
-    for result in sorted(results, key=lambda r: calculate_avg(r, 'ndcg_at_5'), reverse=True):
-        model = get_model_name(result.get('model', 'Unknown'))
+    for result in sorted(
+        results, key=lambda r: calculate_avg(r, "ndcg_at_5"), reverse=True
+    ):
+        model = get_model_name(result.get("model", "Unknown"))
 
         metrics = {
-            'ndcg_at_1': calculate_avg(result, 'ndcg_at_1'),
-            'ndcg_at_5': calculate_avg(result, 'ndcg_at_5'),
-            'ndcg_at_10': calculate_avg(result, 'ndcg_at_10'),
-            'recall_at_1': calculate_avg(result, 'recall_at_1'),
-            'recall_at_5': calculate_avg(result, 'recall_at_5'),
-            'recall_at_10': calculate_avg(result, 'recall_at_10'),
-            'recall_at_20': calculate_avg(result, 'recall_at_20'),
-            'recall_at_100': calculate_avg(result, 'recall_at_100'),
-            'map_at_10': calculate_avg(result, 'map_at_10'),
-            'mrr_at_10': calculate_avg(result, 'mrr_at_10'),
+            "ndcg_at_1": calculate_avg(result, "ndcg_at_1"),
+            "ndcg_at_5": calculate_avg(result, "ndcg_at_5"),
+            "ndcg_at_10": calculate_avg(result, "ndcg_at_10"),
+            "recall_at_1": calculate_avg(result, "recall_at_1"),
+            "recall_at_5": calculate_avg(result, "recall_at_5"),
+            "recall_at_10": calculate_avg(result, "recall_at_10"),
+            "recall_at_20": calculate_avg(result, "recall_at_20"),
+            "recall_at_100": calculate_avg(result, "recall_at_100"),
+            "map_at_10": calculate_avg(result, "map_at_10"),
+            "mrr_at_10": calculate_avg(result, "mrr_at_10"),
         }
 
         html += f"""
@@ -270,8 +276,8 @@ def generate_html(results):
     # Get all unique tasks
     all_tasks = set()
     for result in results:
-        for task in result.get('results', {}).get('task_results', []):
-            all_tasks.add(task['task_name'])
+        for task in result.get("results", {}).get("task_results", []):
+            all_tasks.add(task["task_name"])
 
     for task_name in sorted(all_tasks):
         readable_name = get_task_name(task_name)
@@ -296,15 +302,22 @@ def generate_html(results):
         <tbody>
 """
 
+        # Collect all results for this task and sort by NDCG@5 score
+        task_results = []
         for result in results:
-            tasks = result.get('results', {}).get('task_results', [])
-            task = next((t for t in tasks if t['task_name'] == task_name), None)
+            tasks = result.get("results", {}).get("task_results", [])
+            task = next((t for t in tasks if t["task_name"] == task_name), None)
 
             if task:
-                model = get_model_name(result.get('model', 'Unknown'))
-                scores = task.get('scores', {}).get('test', [{}])[0]
+                model = get_model_name(result.get("model", "Unknown"))
+                scores = task.get("scores", {}).get("test", [{}])[0]
+                task_results.append((model, scores))
 
-                html += f"""
+        # Sort by NDCG@5 score (descending)
+        task_results.sort(key=lambda x: x[1].get("ndcg_at_5", 0), reverse=True)
+
+        for model, scores in task_results:
+            html += f"""
             <tr>
                 <td class="model-name">{model}</td>
                 <td class="metric">{scores.get('ndcg_at_1', 0)*100:.2f}%</td>
@@ -325,15 +338,26 @@ def generate_html(results):
 """
 
     # JavaScript for charts
-    html += """
+    html += (
+        """
     <script>
-        const results = """ + json.dumps([{
-            'model': get_model_name(r.get('model', '')),
-            'tasks': [{
-                'name': get_task_name(t['task_name']),
-                'scores': t.get('scores', {}).get('test', [{}])[0]
-            } for t in r.get('results', {}).get('task_results', [])]
-        } for r in results]) + """;
+        const results = """
+        + json.dumps(
+            [
+                {
+                    "model": get_model_name(r.get("model", "")),
+                    "tasks": [
+                        {
+                            "name": get_task_name(t["task_name"]),
+                            "scores": t.get("scores", {}).get("test", [{}])[0],
+                        }
+                        for t in r.get("results", {}).get("task_results", [])
+                    ],
+                }
+                for r in results
+            ]
+        )
+        + """;
 
         function drawChart(canvasId, metric, title) {
             const canvas = document.getElementById(canvasId);
@@ -439,8 +463,10 @@ def generate_html(results):
 </body>
 </html>
 """
+    )
 
     return html
+
 
 def main():
     # Get path from arguments
@@ -458,8 +484,8 @@ def main():
 
     html = generate_html(results)
 
-    output_file = 'results_visualization.html'
-    with open(output_file, 'w') as f:
+    output_file = "results_visualization.html"
+    with open(output_file, "w") as f:
         f.write(html)
 
     print(f"✓ Generated {output_file}")
@@ -470,5 +496,6 @@ def main():
     print("  - Line charts (NDCG@k and Recall@k)")
     print("  - Task names mapped to readable format")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
