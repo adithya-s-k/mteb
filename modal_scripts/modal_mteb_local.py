@@ -657,6 +657,11 @@ if __name__ == "__main__":
 #     --benchmarks "ViDoRe(v2)" \
 #     --batch-size 8
 
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-V2-MultiGPU-1750" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 8
+
 # ============================================================================
 # NayanaEmbed-ColPali Models - ViDoRe v2 Evaluation (Multi-Vector)
 # ============================================================================
