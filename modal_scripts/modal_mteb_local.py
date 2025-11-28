@@ -691,6 +691,7 @@ if __name__ == "__main__":
 #     --benchmarks "ViDoRe(v2)" \
 #     --batch-size 8
 
+
 # ============================================================================
 # ColGemma3 Models - NayanaIR-Bench-v12 Evaluation (Multi-Vector)
 # ============================================================================
@@ -853,3 +854,38 @@ if __name__ == "__main__":
 #     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-2560" \
 #     --benchmarks "NayanaIR-CrossBench" \
 #     --batch-size 12
+
+
+# ============================================================================
+# ColGemma3 MultiGPU Merged Models - ViDoRe v2 and NayanaIR-CrossBench Evaluation
+# Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-750-22-colbert
+# ============================================================================
+
+"""
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-750-22-colbert" \
+    --benchmarks "ViDoRe(v2)" \
+    --batch-size 12
+
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-750-22-colbert" \
+    --benchmarks "NayanaIR-CrossBench" \
+    --batch-size 12
+    
+
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-1610-22-colbert" \
+    --benchmarks "ViDoRe(v2)" \
+    --batch-size 12
+
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-1610-22-colbert" \
+    --benchmarks "NayanaIR-CrossBench" \
+    --batch-size 12
+    
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-1610-22-colbert" \
+    --benchmarks "NayanaIR-Bench-Monolingual" \
+    --batch-size 12
+
+"""
