@@ -784,7 +784,72 @@ if __name__ == "__main__":
 
 # modal run -d modal_mteb_local.py::main --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2" --benchmarks "ViDoRe(v2)" --batch-size 12
 
-# 
+#
 # modal run -d modal_mteb_local.py::main --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2" --benchmarks "NayanaIR-CrossBench" --batch-size 12
 
 # modal run -d modal_mteb_local.py::main --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2" --benchmarks "NayanaIR-Bench-Monolingual" --batch-size 12
+
+# ============================================================================
+# BiGemma3 Matryoshka-5066-v2 - Batch Mode Evaluation (All 3 Dimensions in Parallel)
+# ============================================================================
+
+# Evaluate all 3 dimensions (768, 1536, 2560) in parallel on ViDoRe v2
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-768,Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-1536,Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-2560" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-mode \
+#     --batch-size 12
+
+# Evaluate all 3 dimensions (768, 1536, 2560) in parallel on NayanaIR-CrossBench
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-768,Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-1536,Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-2560" \
+#     --benchmarks "NayanaIR-CrossBench" \
+#     --batch-mode \
+#     --batch-size 12
+
+# Evaluate all 3 dimensions (768, 1536, 2560) in parallel on NayanaIR-Bench-Monolingual
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-768,Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-1536,Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-2560" \
+#     --benchmarks "NayanaIR-Bench-Monolingual" \
+#     --batch-mode \
+#     --batch-size 12
+
+# ============================================================================
+# Individual Dimension Evaluations
+# ============================================================================
+
+# 768 dimensions - ViDoRe v2
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-768" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# 1536 dimensions - ViDoRe v2
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-1536" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# 2560 dimensions - ViDoRe v2
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-2560" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# 768 dimensions - NayanaIR-CrossBench
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-768" \
+#     --benchmarks "NayanaIR-CrossBench" \
+#     --batch-size 12
+
+# 1536 dimensions - NayanaIR-CrossBench
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-1536" \
+#     --benchmarks "NayanaIR-CrossBench" \
+#     --batch-size 12
+
+# 2560 dimensions - NayanaIR-CrossBench
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2-2560" \
+#     --benchmarks "NayanaIR-CrossBench" \
+#     --batch-size 12
