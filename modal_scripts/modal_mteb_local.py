@@ -620,6 +620,25 @@ if __name__ == "__main__":
 #     --benchmarks "ViDoRe(v2)" \
 #     --batch-size 12
 
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-1500-v2" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-4500-v2" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# ============================================================================
+# Matryoshka Models - NayanaIR-Bench Evaluation (Last Token Pooling)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-1500-v2" \
+#     --benchmarks "NayanaIR-Bench-v12" \
+#     --batch-size 12
+
 # ============================================================================
 # Multiple models evaluation - Batch Mode
 # ============================================================================
@@ -660,6 +679,25 @@ if __name__ == "__main__":
 # modal run modal_mteb_local.py::main \
 #     --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-V2-MultiGPU-1750" \
 #     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 8
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-750-colbert" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 8
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-1848-colbert" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 8
+
+# ============================================================================
+# ColGemma3 Models - NayanaIR-Bench-v12 Evaluation (Multi-Vector)
+# ============================================================================
+
+# modal run modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-750-colbert" \
+#     --benchmarks "NayanaIR-Bench-v12" \
 #     --batch-size 8
 
 # ============================================================================

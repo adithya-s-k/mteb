@@ -28,9 +28,12 @@ class ColGemma3Wrapper(ColPaliEngineWrapper):
         **kwargs,
     ):
         requires_package(
-            self, "colpali_engine", model_name, "pip install git+https://github.com/adithya-s-k/colpali.git@feat/gemma3"
+            self,
+            "colpali_engine",
+            model_name,
+            "pip install git+https://github.com/adithya-s-k/colpali.git@feat/gemma3",
         )
-        from colpali_engine.models.gemma3.colgemma3 import ColGemma3, ColGemmaProcessor3
+        from colpali_engine.models import ColGemma3, ColGemmaProcessor3
 
         super().__init__(
             model_name=model_name,
@@ -56,7 +59,8 @@ colgemma3_base = ModelMeta(
         ColGemma3Wrapper,
         model_name="google/gemma-3-4b-it",
         revision="main",
-        torch_dtype=torch.float16,
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
     ),
     name="google/gemma-3-4b-it-colgemma3",
     languages=["eng-Latn"],
@@ -84,7 +88,8 @@ colgemma3_nayana_2500 = ModelMeta(
         ColGemma3Wrapper,
         model_name="Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-2500",
         revision="main",
-        torch_dtype=torch.float16,
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
     ),
     name="Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-2500",
     languages=["eng-Latn"],
@@ -101,6 +106,64 @@ colgemma3_nayana_2500 = ModelMeta(
     public_training_data=None,
     framework=["PyTorch", "ColPali"],
     reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-2500",
+    similarity_fn_name="max_sim",
+    use_instructions=True,
+    training_datasets=COLGEMMA3_TRAINING_DATA,
+)
+
+# Fine-tuned ColGemma3 - Modal 750 ColBERT
+colgemma3_modal_750_colbert = ModelMeta(
+    loader=partial(
+        ColGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-750-colbert",
+        revision="main",
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-750-colbert",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=128,  # Multi-vector dimension after projection
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-750-colbert",
+    similarity_fn_name="max_sim",
+    use_instructions=True,
+    training_datasets=COLGEMMA3_TRAINING_DATA,
+)
+
+# Fine-tuned ColGemma3 - Modal 750 ColBERT
+colgemma3_modal_1848_colbert = ModelMeta(
+    loader=partial(
+        ColGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-1848-colbert",
+        revision="main",
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-1848-colbert",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=128,  # Multi-vector dimension after projection
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-750-colbert",
     similarity_fn_name="max_sim",
     use_instructions=True,
     training_datasets=COLGEMMA3_TRAINING_DATA,
