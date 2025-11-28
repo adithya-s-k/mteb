@@ -773,3 +773,18 @@ if __name__ == "__main__":
 #     --model "Nayana-cognitivelab/NayanaEmbed-ColSmol-256M-5544" \
 #     --benchmarks "NayanaIR-Bench-v12" \
 #     --batch-size 12
+
+
+# Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2
+
+# modal run -d modal_mteb_local.py::main \
+#     --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2" \
+#     --benchmarks "ViDoRe(v2)" \
+#     --batch-size 12
+
+# modal run -d modal_mteb_local.py::main --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2" --benchmarks "ViDoRe(v2)" --batch-size 12
+
+# 
+# modal run -d modal_mteb_local.py::main --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2" --benchmarks "NayanaIR-CrossBench" --batch-size 12
+
+# modal run -d modal_mteb_local.py::main --model "Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2" --benchmarks "NayanaIR-Bench-Monolingual" --batch-size 12

@@ -3079,6 +3079,46 @@ bigemma3_6langs_hardneg_2145 = ModelMeta(
 )
 
 
+bigemma3_6langs_hardneg_2145 = ModelMeta(
+    loader=partial(
+        BiGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2",
+        embedding_dim=2560,
+        pooling_strategy="last",
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-BiGemma3-Matryoshka-5066-v2",
+    revision="main",
+    release_date="2025-01-01",
+    languages=[
+        "eng-Latn",
+        "hin-Deva",
+        "kan-Knda",
+        "tam-Taml",
+        "mal-Mlym",
+        "jpn-Jpan",
+        "zho-Hans",
+    ],
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=2560,
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-BiGemma3-HardNegs-6langs-merged-2145",
+    similarity_fn_name="cosine",
+    use_instructions=True,
+    training_datasets={
+        "MSMARCO": ["train"],
+        "DocVQA": ["train"],
+        "InfoVQA": ["train"],
+        "ArxivQA": ["train"],
+    },
+)
+
 # ==================== API-Based Models (vLLM Endpoint) ====================
 # These models use the BiGemmaAPIWrapper to connect to deployed vLLM servers
 
