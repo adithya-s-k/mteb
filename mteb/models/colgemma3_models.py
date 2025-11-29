@@ -283,3 +283,32 @@ colgemma3_modal_merged_1610_22_colbert = ModelMeta(
     use_instructions=True,
     training_datasets=COLGEMMA3_TRAINING_DATA,
 )
+
+#  Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana-linear-v1
+colgemma3_modal_merged_1610_22_colbert = ModelMeta(
+    loader=partial(
+        ColGemma3Wrapper,
+        model_name="Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana-linear-v1",
+        revision="main",
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+    ),
+    name="Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana-linear-v1",
+    languages=["eng-Latn"],
+    revision="main",
+    release_date="2025-01-01",
+    modalities=["image", "text"],
+    n_parameters=4_000_000_000,  # ~4B parameters
+    memory_usage_mb=8000,
+    max_tokens=8192,  # Gemma3 context length
+    embed_dim=128,  # Multi-vector dimension after projection
+    license="gemma",
+    open_weights=True,
+    public_training_code="https://github.com/adithya-s-k/colpali",
+    public_training_data=None,
+    framework=["PyTorch", "ColPali"],
+    reference="https://huggingface.co/Nayana-cognitivelab/NayanaEmbed-ColGemma3-Modal-750-colbert",
+    similarity_fn_name="max_sim",
+    use_instructions=True,
+    training_datasets=COLGEMMA3_TRAINING_DATA,
+)

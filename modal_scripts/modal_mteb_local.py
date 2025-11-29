@@ -908,12 +908,12 @@ modal run modal_mteb_local.py::main \
 
 
 modal run modal_mteb_local.py::main \
-    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana" \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana-linear-v1" \
     --benchmarks "ViDoRe(v2)" \
     --batch-size 12
     
 modal run modal_mteb_local.py::main \
-    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana" \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana-linear-v1" \
     --benchmarks "NayanaIR-CrossBench" \
     --batch-size 12
 
