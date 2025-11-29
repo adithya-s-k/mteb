@@ -887,5 +887,38 @@ modal run modal_mteb_local.py::main \
     --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-1610-22-colbert" \
     --benchmarks "NayanaIR-Bench-Monolingual" \
     --batch-size 12
+    
 
+
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-1267-22-colbert-v1" \
+    --benchmarks "ViDoRe(v2)" \
+    --batch-size 12
+
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-1267-22-colbert-v1" \
+    --benchmarks "NayanaIR-CrossBench" \
+    --batch-size 12
+    
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-MultiGPU-merged-1267-22-colbert-v1" \
+    --benchmarks "NayanaIR-Bench-Monolingual" \
+    --batch-size 12
+    
+
+
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana" \
+    --benchmarks "ViDoRe(v2)" \
+    --batch-size 12
+    
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana" \
+    --benchmarks "NayanaIR-CrossBench" \
+    --batch-size 12
+
+modal run modal_mteb_local.py::main \
+    --model "Nayana-cognitivelab/NayanaEmbed-ColGemma3-Merge-Colbert-base-nayana" \
+    --benchmarks "NayanaIR-Bench-Monolingual" \
+    --batch-size 12
 """
