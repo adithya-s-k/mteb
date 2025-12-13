@@ -2556,6 +2556,74 @@ JINA_VDR = Benchmark(
 }""",
 )
 
+NAYANA_IR_CROSS_BENCH = Benchmark(
+    name="NayanaIR-CrossBench",
+    display_name="NayanaIR Cross-lingual",
+    tasks=MTEBTasks(
+        get_tasks(
+            tasks=["NayanaIRCrossBench"],
+            eval_splits=["test"],
+        )
+    ),
+    description="Cross-lingual document retrieval benchmark spanning 20 languages. Evaluates multimodal retrieval performance across diverse linguistic contexts.",
+    reference="https://arxiv.org/abs/2512.03514",
+    citation=r"""@misc{kolavi2025m3druniversalmultilingualmultimodal,
+  title={M3DR: Towards Universal Multilingual Multimodal Document Retrieval}, 
+  author={Adithya S Kolavi and Vyoman Jain},
+  year={2025},
+  eprint={2512.03514},
+  archivePrefix={arXiv},
+  primaryClass={cs.IR},
+  url={https://arxiv.org/abs/2512.03514}
+}""",
+    contacts=["adithya-s-k", "VyoJ"],
+)
+
+NAYANA_IR_MONO_BENCH = Benchmark(
+    name="NayanaIR-MonoBench",
+    display_name="NayanaIR Monolingual",
+    tasks=MTEBTasks(
+        get_tasks(
+            tasks=[
+                "NayanaIRMonoBench-ar",
+                "NayanaIRMonoBench-bn",
+                "NayanaIRMonoBench-de",
+                "NayanaIRMonoBench-en",
+                "NayanaIRMonoBench-es",
+                "NayanaIRMonoBench-fr",
+                "NayanaIRMonoBench-gu",
+                "NayanaIRMonoBench-hi",
+                "NayanaIRMonoBench-it",
+                "NayanaIRMonoBench-ja",
+                "NayanaIRMonoBench-kn",
+                "NayanaIRMonoBench-ko",
+                "NayanaIRMonoBench-ml",
+                "NayanaIRMonoBench-mr",
+                "NayanaIRMonoBench-or",
+                "NayanaIRMonoBench-pa",
+                "NayanaIRMonoBench-ru",
+                "NayanaIRMonoBench-sa",
+                "NayanaIRMonoBench-ta",
+                "NayanaIRMonoBench-te",
+                "NayanaIRMonoBench-th",
+                "NayanaIRMonoBench-zh",
+            ],
+            eval_splits=["test"],
+        )
+    ),
+    description="Monolingual document retrieval benchmark across 22 languages. Evaluates multimodal retrieval performance within individual language contexts.",
+    reference="https://arxiv.org/abs/2512.03514",
+    citation=r"""@misc{kolavi2025m3druniversalmultilingualmultimodal,
+  title={M3DR: Towards Universal Multilingual Multimodal Document Retrieval}, 
+  author={Adithya S Kolavi and Vyoman Jain},
+  year={2025},
+  eprint={2512.03514},
+  archivePrefix={arXiv},
+  primaryClass={cs.IR},
+  url={https://arxiv.org/abs/2512.03514}
+}""",
+    contacts=["adithya-s-k", "VyoJ"],
+)
 
 HUME = HUMEBenchmark(
     name="HUME(v1)",
