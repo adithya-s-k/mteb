@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 import torch
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
+from functools import partial
 
 from mteb._requires_package import (
     requires_image_dependencies,
@@ -62,13 +63,12 @@ class NetraEmbedWrapper(AbsEncoder):
         logger.info(f"Embedding dimension: {embedding_dim}")
         logger.info(f"Pooling strategy: {pooling_strategy}")
 
-        # Load model
+        # Load model (pooling_strategy and embedding_dim are passed to forward(), not here)
         self.model = BiGemma3.from_pretrained(
             model_name,
             torch_dtype=torch.bfloat16,
             device_map="auto",
             trust_remote_code=True,
-            pooling_strategy=pooling_strategy,
             **kwargs,
         ).eval()
 
@@ -128,9 +128,11 @@ class NetraEmbedWrapper(AbsEncoder):
                 # Process texts
                 batch_inputs = self.processor.process_texts(texts).to(self.device)
 
-                # Get embeddings with specified dimension
+                # Get embeddings with specified dimension and pooling strategy
                 embeddings = self.model(
-                    **batch_inputs, embedding_dim=self.embedding_dim
+                    **batch_inputs,
+                    pooling_strategy=self.pooling_strategy,
+                    embedding_dim=self.embedding_dim,
                 )
                 all_embeddings.append(embeddings.cpu().to(torch.float32))
 
@@ -167,9 +169,11 @@ class NetraEmbedWrapper(AbsEncoder):
                 # Process images
                 batch_inputs = self.processor.process_images(pil_images).to(self.device)
 
-                # Get embeddings with specified dimension
+                # Get embeddings with specified dimension and pooling strategy
                 embeddings = self.model(
-                    **batch_inputs, embedding_dim=self.embedding_dim
+                    **batch_inputs,
+                    pooling_strategy=self.pooling_strategy,
+                    embedding_dim=self.embedding_dim,
                 )
                 all_embeddings.append(embeddings.cpu().to(torch.float32))
 
@@ -200,6 +204,7 @@ class ColNetraEmbedWrapper(AbsEncoder):
         model_name: str = "Cognitive-Lab/ColNetraEmbed",
         revision: str | None = None,
         device: str | None = None,
+        torch_dtype=None,
         **kwargs,
     ):
         requires_image_dependencies()
@@ -213,13 +218,14 @@ class ColNetraEmbedWrapper(AbsEncoder):
         from colpali_engine.models import ColGemma3, ColGemmaProcessor3
 
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        torch_dtype = torch_dtype or torch.float16
 
         logger.info(f"Loading ColNetraEmbed model: {model_name}")
 
         # Load model
         self.model = ColGemma3.from_pretrained(
             model_name,
-            torch_dtype=torch.bfloat16,
+            torch_dtype=torch_dtype,
             device_map=self.device,
             adapter_kwargs={"revision": revision},
             **kwargs,
@@ -401,7 +407,7 @@ netraembed = ModelMeta(
 
 # NetraEmbed - 1536 dimension (Matryoshka)
 netraembed_1536 = ModelMeta(
-    loader=NetraEmbedWrapper,
+    loader=partial(NetraEmbedWrapper, model_name="Cognitive-Lab/NetraEmbed"),
     loader_kwargs=dict(
         embedding_dim=1536,
         pooling_strategy="last",
@@ -429,7 +435,7 @@ netraembed_1536 = ModelMeta(
 
 # NetraEmbed - 768 dimension (Matryoshka)
 netraembed_768 = ModelMeta(
-    loader=NetraEmbedWrapper,
+    loader=partial(NetraEmbedWrapper, model_name="Cognitive-Lab/NetraEmbed"),
     loader_kwargs=dict(
         embedding_dim=768,
         pooling_strategy="last",
@@ -458,9 +464,7 @@ netraembed_768 = ModelMeta(
 # ColNetraEmbed - Multi-vector model
 colnetraembed = ModelMeta(
     loader=ColNetraEmbedWrapper,
-    loader_kwargs=dict(
-        torch_dtype=torch.bfloat16,
-    ),
+    loader_kwargs=dict(),
     name="Cognitive-Lab/ColNetraEmbed",
     languages=NETRA_LANGUAGES,
     revision="main",
