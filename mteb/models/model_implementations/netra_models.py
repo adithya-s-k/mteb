@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any
 import torch
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
-from functools import partial
 
 from mteb._requires_package import (
     requires_image_dependencies,
@@ -21,6 +20,13 @@ if TYPE_CHECKING:
     pass
 
 logger = logging.getLogger(__name__)
+
+
+def _get_base_model_name(name: str) -> str:
+    """Extract base model name, removing dimension suffixes like -768, -1536."""
+    if name.endswith(("-768", "-1536", "-2560")):
+        return name.rsplit("-", 1)[0]
+    return name
 
 
 class NetraEmbedWrapper(AbsEncoder):
@@ -54,18 +60,21 @@ class NetraEmbedWrapper(AbsEncoder):
 
         from colpali_engine.models import BiGemma3, BiGemmaProcessor3
 
-        self.model_name = model_name
+        # Extract base model name (remove dimension suffixes)
+        base_model_name = _get_base_model_name(model_name)
+
+        self.model_name = base_model_name
         self.embedding_dim = embedding_dim
         self.pooling_strategy = pooling_strategy
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
 
-        logger.info(f"Loading NetraEmbed model: {model_name}")
+        logger.info(f"Loading NetraEmbed model: {base_model_name}")
         logger.info(f"Embedding dimension: {embedding_dim}")
         logger.info(f"Pooling strategy: {pooling_strategy}")
 
         # Load model (pooling_strategy and embedding_dim are passed to forward(), not here)
         self.model = BiGemma3.from_pretrained(
-            model_name,
+            base_model_name,
             torch_dtype=torch.bfloat16,
             device_map="auto",
             trust_remote_code=True,
@@ -74,7 +83,7 @@ class NetraEmbedWrapper(AbsEncoder):
 
         # Load processor
         self.processor = BiGemmaProcessor3.from_pretrained(
-            model_name,
+            base_model_name,
             use_fast=True,
         )
 
@@ -407,7 +416,7 @@ netraembed = ModelMeta(
 
 # NetraEmbed - 1536 dimension (Matryoshka)
 netraembed_1536 = ModelMeta(
-    loader=partial(NetraEmbedWrapper, model_name="Cognitive-Lab/NetraEmbed"),
+    loader=NetraEmbedWrapper,
     loader_kwargs=dict(
         embedding_dim=1536,
         pooling_strategy="last",
@@ -435,7 +444,7 @@ netraembed_1536 = ModelMeta(
 
 # NetraEmbed - 768 dimension (Matryoshka)
 netraembed_768 = ModelMeta(
-    loader=partial(NetraEmbedWrapper, model_name="Cognitive-Lab/NetraEmbed"),
+    loader=NetraEmbedWrapper,
     loader_kwargs=dict(
         embedding_dim=768,
         pooling_strategy="last",
